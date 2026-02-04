@@ -1,0 +1,65 @@
+[
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-01",
+    "description": "express oneself in a nuanced and precise manner with fluency and coherence, using idiomatic expressions and varied sentence structures adapted to the purpose and situation"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-02",
+    "description": "listen to, understand and use the English language in conversations and discussions on general and academic topics"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-03",
+    "description": "read, understand and reflect on texts of varying length and complexity that discuss general and academic topics"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-04",
+    "description": "write texts with structure and coherence using varied sentence structures and precise vocabulary"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Språklæring",
+    "code": "ENG-10-SP-01",
+    "description": "use appropriate aids and use knowledge of similarities between English and other languages in language learning"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Språklæring",
+    "code": "ENG-10-SP-02",
+    "description": "use various strategies for language learning, text creation and communication"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kultur og samfunn",
+    "code": "ENG-10-KS-01",
+    "description": "discuss different types of English language texts from English-speaking countries about culture, society and literature"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kultur og samfunn",
+    "code": "ENG-10-KS-02",
+    "description": "discuss and elaborate on social conditions and cultural features in English-speaking countries"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kultur og samfunn",
+    "code": "ENG-10-KS-03",
+    "description": "discuss and reflect on current events and social and political issues in the English-speaking world"
+  }
+]

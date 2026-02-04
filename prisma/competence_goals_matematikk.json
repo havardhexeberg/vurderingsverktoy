@@ -1,0 +1,191 @@
+[
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Tall og algebra",
+    "code": "MAT-08-TA-01",
+    "description": "utforske og beskrive strukturer og forandring i geometriske mønster og i tallmønstre, og uttrykke generaliseringer av disse"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Tall og algebra",
+    "code": "MAT-08-TA-02",
+    "description": "utforske hvordan endring i én variabel påvirker andre variable, og uttrykte sammenhengen mellom variable"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Tall og algebra",
+    "code": "MAT-08-TA-03",
+    "description": "utforske og forklare regler for regning med tall skrevet på standardform"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Geometri",
+    "code": "MAT-08-GE-01",
+    "description": "utforske og beskrive egenskaper ved to- og tredimensjonale figurer og argumentere geometrisk"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Geometri",
+    "code": "MAT-08-GE-02",
+    "description": "utforske, beskrive og begrunne hvordan to- og tredimensjonale figurer kan konstrueres og visualiseres"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Måling",
+    "code": "MAT-08-MA-01",
+    "description": "utforske, beskrive og begrunne hvordan man kan måle omfang, areal og volum av to- og tredimensjonale figurer"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-08-ST-01",
+    "description": "representere data i tabeller og diagram og lese og tolke data fra diagrammer og tabeller"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 8,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-08-ST-02",
+    "description": "utforske, beskrive og sammenligne datasett ved hjelp av variasjonsbredde, typiske verdier og gjennomsnittsberegninger"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Tall og algebra",
+    "code": "MAT-09-TA-01",
+    "description": "representere og tolke situasjoner med funksjoner, inkludert proporsjonale og omvendt proporsjonale størrelser"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Tall og algebra",
+    "code": "MAT-09-TA-02",
+    "description": "utforske og bruke enkle kvadratiske funksjoner og rette linjer"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Tall og algebra",
+    "code": "MAT-09-TA-03",
+    "description": "bruke algebra til å generalisere, formulere og løse problemer med metoder som prøving, påfyll, omforming og likevektsprinsippet"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Geometri",
+    "code": "MAT-09-GE-01",
+    "description": "utforske og beskrive egenskaper ved ulike geometriske figurer og gjøre rede for noen logiske relasjoner mellom disse"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Geometri",
+    "code": "MAT-09-GE-02",
+    "description": "utforske hvordan figurer kan avbildes og hvordan avbildinger kan brukes til å lage mønstre, diskutere symmetri og kongruens, og begrunne egenskaper ved disse"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Måling",
+    "code": "MAT-09-MA-01",
+    "description": "utforske, formulere og løse problemer knyttet til omfang, areal, overflate og volum"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-09-ST-01",
+    "description": "tolke, vurdere og kritisk granske tabeller og diagrammer fra statistiske analyser, inkludert analyser fra digitale verktøy"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 9,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-09-ST-02",
+    "description": "utforske og simulere utfall i tilfeldige situasjoner og beregne sannsynlighet i enkle situasjoner"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Tall og algebra",
+    "code": "MAT-10-TA-01",
+    "description": "utforske og beskrive egenskaper ved ulike funksjoner og bruke disse i modellering av praktiske situasjoner"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Tall og algebra",
+    "code": "MAT-10-TA-02",
+    "description": "representere situasjoner på ulike måter og oversette mellom representasjonsformene"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Tall og algebra",
+    "code": "MAT-10-TA-03",
+    "description": "bruke algebra til å generalisere, formulere og løse problemer med og uten digitale verktøy"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Tall og algebra",
+    "code": "MAT-10-TA-04",
+    "description": "tolke, bearbeide, vurdere og diskutere matematiske modeller av virkelighetsnære situasjoner"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Geometri",
+    "code": "MAT-10-GE-01",
+    "description": "utforske og argumentere for sammenhenger mellom sider og vinkler i trekanter, sirkler og andre geometriske figurer"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Geometri",
+    "code": "MAT-10-GE-02",
+    "description": "bruke og grunngi bruk av formlikhet, Pytagoras' setning og trigonometri til beregninger"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Geometri",
+    "code": "MAT-10-GE-03",
+    "description": "utforske geometriske figurer og argumentere ved hjelp av geometriske representasjoner, begreper og logiske resonnementer"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Måling",
+    "code": "MAT-10-MA-01",
+    "description": "utforske, beskrive og bruke formler for areal og volum og gjøre overslag over og beregne disse i sammensatte figurer"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-10-ST-01",
+    "description": "planlegge, samle inn, organisere og analysere data ved å bruke regneark og andre digitale verktøy, samt presentere og argumentere for framgangsmåter og funn"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-10-ST-02",
+    "description": "vurdere og kritisk granske det som blir framstilt i statistiske analyser i media og samfunn"
+  },
+  {
+    "subject": "Matematikk",
+    "grade": 10,
+    "area": "Statistikk og sannsynlighet",
+    "code": "MAT-10-ST-03",
+    "description": "beregne og presentere sannsynlighet i ulike situasjoner og vurdere usikkerhet og risiko"
+  }
+]

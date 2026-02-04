@@ -1,0 +1,252 @@
+// This is your Prisma schema file
+// Learn more: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================
+// USERS & AUTHENTICATION
+// ============================================
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  role      String   // TEACHER, PRINCIPAL, PARENT, CONTACT_TEACHER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  assessmentsCreated Assessment[]
+  classGroups        ClassGroup[] @relation("TeacherClassGroups")
+
+  @@map("users")
+}
+
+// ============================================
+// STUDENTS
+// ============================================
+
+model Student {
+  id          String   @id @default(cuid())
+  name        String
+  birthNumber String   @unique
+  grade       Int      // 8, 9, or 10
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  classGroups        ClassGroupStudent[]
+  assessments        Assessment[]
+  exemptions         Exemption[]
+  competenceProfiles CompetenceProfile[]
+
+  @@index([grade])
+  @@map("students")
+}
+
+// ============================================
+// CLASS GROUPS (FAGGRUPPER)
+// ============================================
+
+model ClassGroup {
+  id         String   @id @default(cuid())
+  name       String   // e.g. "Matematikk 10A"
+  subject    String   // e.g. "Matematikk"
+  grade      Int      // 8, 9, or 10
+  schoolYear String   // e.g. "2025/2026"
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  teacher     User                @relation("TeacherClassGroups", fields: [teacherId], references: [id])
+  teacherId   String
+  students    ClassGroupStudent[]
+  assessments Assessment[]
+
+  @@index([teacherId])
+  @@index([subject, grade])
+  @@map("class_groups")
+}
+
+// Join table for many-to-many between Student and ClassGroup
+model ClassGroupStudent {
+  student      Student    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId    String
+  classGroup   ClassGroup @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
+  classGroupId String
+  joinedAt     DateTime   @default(now())
+
+  @@id([studentId, classGroupId])
+  @@map("class_group_students")
+}
+
+// ============================================
+// COMPETENCE GOALS (KOMPETANSEMÅL)
+// ============================================
+
+model CompetenceGoal {
+  id          String   @id @default(cuid())
+  subject     String   // e.g. "Matematikk"
+  grade       Int      // 8, 9, or 10 (or null for all grades)
+  area        String   // Kompetanseområde, e.g. "Tall og algebra"
+  code        String   @unique // e.g. "MAT-01-05"
+  description String
+  createdAt   DateTime @default(now())
+
+  // Relations
+  assessments        AssessmentCompetenceGoal[]
+  competenceProfiles CompetenceProfile[]
+
+  @@index([subject, grade])
+  @@index([code])
+  @@map("competence_goals")
+}
+
+// ============================================
+// ASSESSMENTS (VURDERINGER)
+// ============================================
+
+model Assessment {
+  id           String   @id @default(cuid())
+  date         DateTime
+  type         String   // MIDTERM, FINAL, ONGOING
+  form         String   // WRITTEN, ORAL, ORAL_PRACTICAL, PRACTICAL
+  grade        Int?     // 1-6, or null for "Ikke vurdert"
+  feedback     String?
+  description  String?  // e.g. "Prøve i likninger"
+  internalNote String?
+  isPublished  Boolean  @default(false)
+  weighting    Int?     // Optional weighting (1-10)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Change tracking
+  changeReason String?  // Required when grade is changed
+
+  // Relations
+  student         Student                    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId       String
+  classGroup      ClassGroup                 @relation(fields: [classGroupId], references: [id], onDelete: Cascade)
+  classGroupId    String
+  createdBy       User                       @relation(fields: [createdById], references: [id])
+  createdById     String
+  competenceGoals AssessmentCompetenceGoal[]
+
+  @@index([studentId])
+  @@index([classGroupId])
+  @@index([date])
+  @@index([type, isPublished])
+  @@map("assessments")
+}
+
+// Join table for many-to-many between Assessment and CompetenceGoal
+model AssessmentCompetenceGoal {
+  assessment       Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  assessmentId     String
+  competenceGoal   CompetenceGoal @relation(fields: [competenceGoalId], references: [id], onDelete: Cascade)
+  competenceGoalId String
+
+  @@id([assessmentId, competenceGoalId])
+  @@map("assessment_competence_goals")
+}
+
+// ============================================
+// COMPETENCE PROFILE (KOMPETANSEMÅLPROFIL)
+// ============================================
+
+model CompetenceProfile {
+  id               String   @id @default(cuid())
+  level            String   // "L", "M", "H" or "1", "2", "3", "4", "5", "6"
+  isManualOverride Boolean  @default(false)
+  overrideReason   String?
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  student          Student        @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId        String
+  competenceGoal   CompetenceGoal @relation(fields: [competenceGoalId], references: [id], onDelete: Cascade)
+  competenceGoalId String
+
+  @@unique([studentId, competenceGoalId])
+  @@index([studentId])
+  @@map("competence_profiles")
+}
+
+// ============================================
+// EXEMPTIONS (FRITAK)
+// ============================================
+
+model Exemption {
+  id               String   @id @default(cuid())
+  type             String   // FULL_SUBJECT, PARTIAL, NO_GRADE
+  subject          String   // e.g. "Norsk"
+  subjectArea      String?  // e.g. "sidemål" (optional)
+  reason           String
+  validFrom        DateTime
+  validTo          DateTime
+  requiresRenewal  Boolean  @default(true)
+  documentationUrl String?  // URL to uploaded PDF/image in cloud storage
+
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  student   Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  studentId String
+
+  @@index([studentId])
+  @@index([validTo])
+  @@map("exemptions")
+}
+
+// ============================================
+// TASKS (OPPGAVER) - For "Mine oppgaver"
+// ============================================
+
+model Task {
+  id           String    @id @default(cuid())
+  type         String    // EXEMPTION_RENEWAL, MIDTERM_MISSING, etc.
+  priority     String    // CRITICAL, SOON, LATER
+  title        String
+  description  String
+  dueDate      DateTime?
+  isDone       Boolean   @default(false)
+
+  // Metadata for linking
+  studentId    String?
+  classGroupId String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([isDone, priority])
+  @@map("tasks")
+}
+
+// ============================================
+// AUDIT LOG (For tracking all changes)
+// ============================================
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String   // e.g. "ASSESSMENT_CREATED", "GRADE_CHANGED"
+  entityType String   // e.g. "Assessment", "Student"
+  entityId   String
+  userId     String
+  changes    String   // JSON string of changes
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

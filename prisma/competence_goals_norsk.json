@@ -1,0 +1,100 @@
+[
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-10-MK-01",
+    "description": "lytte aktivt i samtaler og diskusjoner og gi respons og begrunne egne standpunkter"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-10-MK-02",
+    "description": "presentere et tema muntlig på en formålstjenlig måte tilpasset mottaker og situasjon"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig kommunikasjon",
+    "code": "NOR-10-SK-01",
+    "description": "lese, forstå og reflektere over ulike tekster og kombinere informasjon fra flere kilder"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig kommunikasjon",
+    "code": "NOR-10-SK-02",
+    "description": "skrive ulike tekster med funksjonell struktur, formålstjenlig innhold og god tekstbinding"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig kommunikasjon",
+    "code": "NOR-10-SK-03",
+    "description": "bruke rettskrivningsregler og grunnleggende grammatikk"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig kommunikasjon",
+    "code": "NOR-10-SK-04",
+    "description": "skrive argumenterende tekster med begrunnede synspunkter og relevant informasjon"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Språk og kultur",
+    "code": "NOR-10-SP-01",
+    "description": "utforske og beskrive sentrale trekk ved skriftspråkets oppbygning og reflektere over hvordan skriftspråk fungerer"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Språk og kultur",
+    "code": "NOR-10-SP-02",
+    "description": "utforske og reflektere over hvordan språk påvirker tanker og holdninger"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Litteratur og kultur",
+    "code": "NOR-10-LK-01",
+    "description": "lese, forstå og reflektere over ulike tekster fra norrøn tid, samtiden og fra samiske forfattere"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Litteratur og kultur",
+    "code": "NOR-10-LK-02",
+    "description": "analysere og tolke sentrale tema og uttrykksmåter i tekster fra ulike sjangre og tidsperioder"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Litteratur og kultur",
+    "code": "NOR-10-LK-03",
+    "description": "reflektere over hvordan tekster skaper mening gjennom form, innhold og visuelle virkemidler"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Sidemål",
+    "code": "NOR-10-SM-01",
+    "description": "lese, forstå og reflektere over innholdet i ulike tekster på sidemålet"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Sidemål",
+    "code": "NOR-10-SM-02",
+    "description": "skrive enkle tekster på sidemålet tilpasset formålet"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Sidemål",
+    "code": "NOR-10-SM-03",
+    "description": "gjenkjenne sentrale likheter og forskjeller mellom hovedmål og sidemål"
+  }
+]
