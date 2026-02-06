@@ -10,6 +10,7 @@ const createClassGroupSchema = z.object({
   grade: z.number().int().min(8).max(10),
   schoolYear: z.string(),
   studentIds: z.array(z.string()).optional(),
+  teacherId: z.string().optional(), // For rektor to assign to specific teacher
 })
 
 // GET - Hent alle faggrupper for innlogget lærer
@@ -97,7 +98,10 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    const { name, subject, grade, schoolYear, studentIds } = validation.data
+    const { name, subject, grade, schoolYear, studentIds, teacherId } = validation.data
+
+    // If principal provides teacherId, use that; otherwise use logged-in user
+    const assignedTeacherId = (user.role === "PRINCIPAL" && teacherId) ? teacherId : user.id
 
     const classGroup = await prisma.classGroup.create({
       data: {
@@ -105,7 +109,7 @@ export async function POST(request: NextRequest) {
         subject,
         grade,
         schoolYear,
-        teacherId: user.id,
+        teacherId: assignedTeacherId,
         students: studentIds
           ? {
               create: studentIds.map((studentId) => ({

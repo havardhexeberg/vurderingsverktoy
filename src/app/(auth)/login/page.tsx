@@ -35,7 +35,7 @@ export default function LoginPage() {
     }
   }
 
-  const handleQuickLogin = async (email: string) => {
+  const handleQuickLogin = async (email: string, redirectPath: string = "/dashboard") => {
     setIsLoading(true)
     setError("")
 
@@ -49,7 +49,7 @@ export default function LoginPage() {
       setError("Innlogging feilet")
       setIsLoading(false)
     } else {
-      router.push("/dashboard")
+      router.push(redirectPath)
       router.refresh()
     }
   }
@@ -100,7 +100,7 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => handleQuickLogin("larer@test.no")}
+                onClick={() => handleQuickLogin("larer@test.no", "/dashboard")}
                 disabled={isLoading}
               >
                 <span className="mr-2">👩‍🏫</span>
@@ -109,7 +109,7 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => handleQuickLogin("rektor@test.no")}
+                onClick={() => handleQuickLogin("rektor@test.no", "/rektor")}
                 disabled={isLoading}
               >
                 <span className="mr-2">👔</span>
@@ -118,11 +118,20 @@ export default function LoginPage() {
               <Button
                 variant="outline"
                 className="w-full justify-start"
-                onClick={() => handleQuickLogin("foresatt@test.no")}
+                onClick={() => handleQuickLogin("foresatt@test.no", "/foresatt")}
                 disabled={isLoading}
               >
                 <span className="mr-2">👪</span>
                 Test Foresatt (foresatt@test.no)
+              </Button>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => handleQuickLogin("elev@test.no", "/elev")}
+                disabled={isLoading}
+              >
+                <span className="mr-2">🎓</span>
+                Test Elev (elev@test.no)
               </Button>
             </div>
           </div>

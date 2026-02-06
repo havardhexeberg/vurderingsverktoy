@@ -1,25 +1,77 @@
 import { AuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 
-// Mock users for prototype
+// Mock users for prototype - matches seed data
 const MOCK_USERS = [
-  {
-    id: "teacher-1",
-    email: "larer@test.no",
-    name: "Test Lærer",
-    role: "TEACHER",
-  },
+  // Principal
   {
     id: "principal-1",
     email: "rektor@test.no",
-    name: "Test Rektor",
+    name: "Kari Nordmann",
     role: "PRINCIPAL",
   },
+  // Teachers
+  {
+    id: "teacher-1",
+    email: "larer@test.no",
+    name: "Ole Hansen",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-2",
+    email: "norsk.larer@test.no",
+    name: "Anna Larsen",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-3",
+    email: "engelsk.larer@test.no",
+    name: "Erik Berg",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-4",
+    email: "spansk.larer@test.no",
+    name: "Maria Garcia",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-5",
+    email: "naturfag.larer@test.no",
+    name: "Per Olsen",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-6",
+    email: "samfunn.larer@test.no",
+    name: "Line Johansen",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-7",
+    email: "kunst.larer@test.no",
+    name: "Kristin Vik",
+    role: "TEACHER",
+  },
+  {
+    id: "teacher-8",
+    email: "gym.larer@test.no",
+    name: "Thomas Moe",
+    role: "TEACHER",
+  },
+  // Parent
   {
     id: "parent-1",
     email: "foresatt@test.no",
-    name: "Test Foresatt",
+    name: "Trude Hansen",
     role: "PARENT",
+  },
+  // Student
+  {
+    id: "student-1",
+    email: "elev@test.no",
+    name: "Emma Hansen",
+    role: "STUDENT",
   },
 ]
 

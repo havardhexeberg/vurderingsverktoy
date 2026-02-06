@@ -1,0 +1,569 @@
+[
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-08-MK-01",
+    "description": "lytte til og videreutvikle innspill fra andre og begrunne egne synspunkter i diskusjoner"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-08-MK-02",
+    "description": "bruke fagspråk og argumentere saklig i diskusjoner, samtaler, muntlige presentasjoner og skriftlige framstillinger om norskfaglige og tverrfaglige temaer"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Skriftlig tekstskaping",
+    "code": "NOR-08-ST-01",
+    "description": "skrive tekster med klart uttrykt tema og skape sammenheng mellom setninger og avsnitt"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Skriftlig tekstskaping",
+    "code": "NOR-08-ST-02",
+    "description": "mestre sentrale regler i formverk og ortografi og kunne bruke ulike digitale ressurser og verktøy i egen skriving"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Lesing og litteratur",
+    "code": "NOR-08-LL-01",
+    "description": "lese skjønnlitteratur og sakprosa og reflektere over innhold og formål"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 8,
+    "area": "Lesing og litteratur",
+    "code": "NOR-08-LL-02",
+    "description": "bruke lesestrategier tilpasset formålet med lesingen"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 9,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-09-MK-01",
+    "description": "gjennomføre muntlige presentasjoner med tilpasning til formål, publikum og media"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 9,
+    "area": "Skriftlig tekstskaping",
+    "code": "NOR-09-ST-01",
+    "description": "skrive kreative, informative og argumenterende tekster etter mønster av eksempeltekster og andre kilder, og tilpasse egne tekster til formål og mottaker"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 9,
+    "area": "Lesing og litteratur",
+    "code": "NOR-09-LL-01",
+    "description": "lese og tolke tekster og reflektere over hvordan tekster framstiller virkelighet og gir innsikt i menneskers liv og tanker"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Muntlig kommunikasjon",
+    "code": "NOR-10-MK-01",
+    "description": "bruke retoriske virkemidler i presentasjoner og diskusjoner"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig tekstskaping",
+    "code": "NOR-10-ST-01",
+    "description": "skrive tekster med funksjonell tekstbinding og mestre sentrale regler i formverk og ortografi på hovedmål og sidemål"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Skriftlig tekstskaping",
+    "code": "NOR-10-ST-02",
+    "description": "bruke kilder på en kritisk måte, markere sitater og vise til kilder på en etterrettelig måte i egne tekster"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Lesing og litteratur",
+    "code": "NOR-10-LL-01",
+    "description": "sammenligne og tolke tekster og reflektere over hvordan kulturhistoriske sammenhenger og fortellertradisjoner påvirker tekstenes form og innhold"
+  },
+  {
+    "subject": "Norsk",
+    "grade": 10,
+    "area": "Språk og samfunn",
+    "code": "NOR-10-SS-01",
+    "description": "utforske språklig variasjon og mangfold i Norge og reflektere over holdninger til ulike språk og dialekter"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 8,
+    "area": "Kommunikasjon",
+    "code": "ENG-08-KO-01",
+    "description": "bruke ulike kilder på engelsk med et kritisk blikk"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 8,
+    "area": "Kommunikasjon",
+    "code": "ENG-08-KO-02",
+    "description": "bruke ulike digitale ressurser og andre hjelpemidler i språklæring, tekstskaping og samhandling"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 8,
+    "area": "Språklæring",
+    "code": "ENG-08-SL-01",
+    "description": "utforske og beskrive noen språklige likheter og ulikheter mellom engelsk og andre språk eleven kjenner"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 9,
+    "area": "Kommunikasjon",
+    "code": "ENG-09-KO-01",
+    "description": "lese, diskutere og reflektere over innhold og virkemidler i engelskspråklige tekster, inkludert ungdomslitteratur"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 9,
+    "area": "Kommunikasjon",
+    "code": "ENG-09-KO-02",
+    "description": "skrive ulike typer tekster med struktur og sammenheng, tilpasset formål og mottaker"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-01",
+    "description": "lytte til og forstå ord og uttrykk i varianter av engelsk fra ulike autentiske situasjoner"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-02",
+    "description": "uttrykke seg nyansert og presist med flyt og sammenheng, tilpasset formål, mottaker og situasjon"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "ENG-10-KO-03",
+    "description": "lese, tolke og reflektere over engelskspråklig skjønnlitteratur, inkludert ungdomslitteratur"
+  },
+  {
+    "subject": "Engelsk",
+    "grade": 10,
+    "area": "Møte med engelskspråklige kulturer",
+    "code": "ENG-10-MK-01",
+    "description": "utforske og reflektere over mangfold og samfunnsforhold i den engelskspråklige verden ut fra historiske sammenhenger"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 8,
+    "area": "Naturvitenskapelige praksiser",
+    "code": "NAT-08-NP-01",
+    "description": "stille spørsmål og lage hypoteser om naturfaglige fenomener"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 8,
+    "area": "Naturvitenskapelige praksiser",
+    "code": "NAT-08-NP-02",
+    "description": "planlegge og gjennomføre undersøkelser og dokumentere funn"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 8,
+    "area": "Energi og materie",
+    "code": "NAT-08-EM-01",
+    "description": "utforske og beskrive energioverføringer og energibevaring"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 9,
+    "area": "Naturvitenskapelige praksiser",
+    "code": "NAT-09-NP-01",
+    "description": "analysere og bruke modeller til å beskrive naturfaglige sammenhenger"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 9,
+    "area": "Jorda og livet på jorda",
+    "code": "NAT-09-JL-01",
+    "description": "utforske sammenhenger mellom abiotiske og biotiske faktorer i et økosystem"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 9,
+    "area": "Kropp og helse",
+    "code": "NAT-09-KH-01",
+    "description": "gjøre rede for nervesystemet og hormonsystemet og hvordan de styrer prosesser i kroppen"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 10,
+    "area": "Naturvitenskapelige praksiser",
+    "code": "NAT-10-NP-01",
+    "description": "drøfte hvordan ny kunnskap og teknologi kan bidra til å løse utfordringer knyttet til bærekraftig utvikling"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 10,
+    "area": "Energi og materie",
+    "code": "NAT-10-EM-01",
+    "description": "gjøre rede for hvordan stoffer er bygget opp, og utforske og beskrive kjemiske reaksjoner"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 10,
+    "area": "Jorda og livet på jorda",
+    "code": "NAT-10-JL-01",
+    "description": "gjøre rede for bioteknologi og drøfte etiske spørsmål knyttet til bioteknologi"
+  },
+  {
+    "subject": "Naturfag",
+    "grade": 10,
+    "area": "Teknologi",
+    "code": "NAT-10-TE-01",
+    "description": "utforske, forstå og lage teknologiske løsninger"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 8,
+    "area": "Undring og utforsking",
+    "code": "SAM-08-UU-01",
+    "description": "reflektere over korleis menneske har kjempa og kjempar for endringar i samfunnet og samstundes har vore og er påverka av dei historiske og geografiske samanhengane dei lever i"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 8,
+    "area": "Samfunnskritisk tenking og sammenhenger",
+    "code": "SAM-08-ST-01",
+    "description": "utforske ulike plattformer for digital samhandling og drøfte korleis kommunikasjon kan fremje eller hindre demokratiske prosessar"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 9,
+    "area": "Demokrati og medborgerskap",
+    "code": "SAM-09-DM-01",
+    "description": "gjere greie for hovudtrekk ved det politiske systemet i Noreg og samanlikne med andre land"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 9,
+    "area": "Identitet og livsmeistring",
+    "code": "SAM-09-IL-01",
+    "description": "reflektere over utfordringar i møte med framtid og arbeidsliv"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 10,
+    "area": "Undring og utforsking",
+    "code": "SAM-10-UU-01",
+    "description": "vurdere på kva måtar ulike kjelder gir informasjon om eit samfunnsfagleg tema, og reflektere over korleis algoritmar, einsretta kjelder eller mangel på kjelder kan prege forståinga vår"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 10,
+    "area": "Demokrati og medborgerskap",
+    "code": "SAM-10-DM-01",
+    "description": "gjere greie for korleis ulike politiske parti og interesseorganisasjonar arbeider for å fremje saker, og korleis ein kan påverke politiske prosessar"
+  },
+  {
+    "subject": "Samfunnsfag",
+    "grade": 10,
+    "area": "Bærekraftig utvikling",
+    "code": "SAM-10-BU-01",
+    "description": "utforske korleis teknologi har vore og framleis er ein endringsfaktor, og drøfte korleis teknologi kan bidra til å løyse globale utfordringar"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 8,
+    "area": "Kjennskap til religioner og livssyn",
+    "code": "KRL-08-KR-01",
+    "description": "utforske og presentere sentrale trekk ved kristendom og andre religioner og livssyn"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 8,
+    "area": "Etikk og filosofi",
+    "code": "KRL-08-EF-01",
+    "description": "identifisere og drøfte etiske problemstillinger"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 9,
+    "area": "Kjennskap til religioner og livssyn",
+    "code": "KRL-09-KR-01",
+    "description": "sammenligne religioner og livssyn og reflektere over mangfold i tro og tanke"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 9,
+    "area": "Etikk og filosofi",
+    "code": "KRL-09-EF-01",
+    "description": "bruke etiske begreper i samtale om dilemmaer"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 10,
+    "area": "Kjennskap til religioner og livssyn",
+    "code": "KRL-10-KR-01",
+    "description": "utforske og drøfte hvordan religioner og livssyn inngår i historiske prosesser og påvirker samfunn og kultur"
+  },
+  {
+    "subject": "KRLE",
+    "grade": 10,
+    "area": "Etikk og filosofi",
+    "code": "KRL-10-EF-01",
+    "description": "reflektere over eksistensielle spørsmål og filosofere over saker som gjelder identitet, relasjoner og meningen med livet"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 8,
+    "area": "Kommunikasjon",
+    "code": "SPA-08-KO-01",
+    "description": "bruke grunnleggende språklige strukturer og former for tekstbinding"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 8,
+    "area": "Kommunikasjon",
+    "code": "SPA-08-KO-02",
+    "description": "delta i samtaler om hverdagslige temaer og egen hverdag"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 8,
+    "area": "Språklæring",
+    "code": "SPA-08-SL-01",
+    "description": "bruke relevante lærings- og kommunikasjonsstrategier"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 9,
+    "area": "Kommunikasjon",
+    "code": "SPA-09-KO-01",
+    "description": "lese og forstå enkle tekster om kjente temaer og uttrykke egne meninger"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 9,
+    "area": "Kommunikasjon",
+    "code": "SPA-09-KO-02",
+    "description": "skrive sammenhengende tekster og bruke grunnleggende språkstrukturer"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 9,
+    "area": "Språk og kultur",
+    "code": "SPA-09-SK-01",
+    "description": "utforske kulturelle uttrykk fra spanskspråklige områder"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "SPA-10-KO-01",
+    "description": "forstå hovedinnholdet i skriftlige og muntlige tekster om ulike temaer"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 10,
+    "area": "Kommunikasjon",
+    "code": "SPA-10-KO-02",
+    "description": "uttrykke seg med flyt og sammenheng og tilpasse språket til formål, mottaker og situasjon"
+  },
+  {
+    "subject": "Spansk",
+    "grade": 10,
+    "area": "Språk og kultur",
+    "code": "SPA-10-SK-01",
+    "description": "utforske og reflektere over levemåter, tradisjoner og geografi i spanskspråklige land"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 8,
+    "area": "Kunst",
+    "code": "KOH-08-KU-01",
+    "description": "analysere hvordan identitet og stedstilhørighet kommuniseres i arkitektur, klær, bilde og gjenstander"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 8,
+    "area": "Håndverk",
+    "code": "KOH-08-HV-01",
+    "description": "bruke ulike håndverkteknikker for å lage gjenstander"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 9,
+    "area": "Design",
+    "code": "KOH-09-DE-01",
+    "description": "visualisere ideer ved hjelp av skisser og modeller"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 9,
+    "area": "Visuell kommunikasjon",
+    "code": "KOH-09-VK-01",
+    "description": "bruke ulike fotografiske og digitale verktøy til å lage visuelle uttrykk"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 10,
+    "area": "Kunst",
+    "code": "KOH-10-KU-01",
+    "description": "analysere og tolke kulturarv og samtidskunst og presentere funn og opplevelser"
+  },
+  {
+    "subject": "Kunst og håndverk",
+    "grade": 10,
+    "area": "Design",
+    "code": "KOH-10-DE-01",
+    "description": "designe produkt ved å bruke designprosessen og reflektere over valg underveis"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 8,
+    "area": "Utøve",
+    "code": "MUS-08-UT-01",
+    "description": "øve inn og fremføre et repertoar av musikk og dans fra ulike sjangre"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 8,
+    "area": "Lage",
+    "code": "MUS-08-LA-01",
+    "description": "skape og programmere musikk med ulike verktøy og teknikker"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 9,
+    "area": "Utøve",
+    "code": "MUS-09-UT-01",
+    "description": "bruke gehør og notasjon til å lære og framføre musikk"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 9,
+    "area": "Oppleve",
+    "code": "MUS-09-OP-01",
+    "description": "lytte til og oppleve et variert repertoar av musikk"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 10,
+    "area": "Utøve",
+    "code": "MUS-10-UT-01",
+    "description": "øve inn og framføre et variert repertoar med og uten digitale ressurser"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 10,
+    "area": "Lage",
+    "code": "MUS-10-LA-01",
+    "description": "skape musikk og låter ved å bruke ulike komposisjonsverktøy og teknikker"
+  },
+  {
+    "subject": "Musikk",
+    "grade": 10,
+    "area": "Oppleve",
+    "code": "MUS-10-OP-01",
+    "description": "reflektere over hvordan musikk er knyttet til identitet og kulturarv"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 8,
+    "area": "Mat og livsstil",
+    "code": "MOH-08-ML-01",
+    "description": "utvikle, tilberede og presentere et måltid"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 8,
+    "area": "Mat og bærekraft",
+    "code": "MOH-08-MB-01",
+    "description": "velge råvarer og matvarer ut fra hensyn til helse, miljø og etikk"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 9,
+    "area": "Mat og livsstil",
+    "code": "MOH-09-ML-01",
+    "description": "bruke digitale ressurser til å finne, vurdere og bruke oppskrifter"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 9,
+    "area": "Mat og kultur",
+    "code": "MOH-09-MK-01",
+    "description": "utforske og lage mat fra ulike mattradisjoner og kulturer"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 10,
+    "area": "Mat og livsstil",
+    "code": "MOH-10-ML-01",
+    "description": "lage trygg og bærekraftig mat og forklare sammenhengen mellom kosthold og helse"
+  },
+  {
+    "subject": "Mat og helse",
+    "grade": 10,
+    "area": "Mat og forbruker",
+    "code": "MOH-10-MF-01",
+    "description": "bruke forbrukerrettigheter og vurdere matvarers kvalitet og miljøpåvirkning"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 8,
+    "area": "Bevegelse og kroppslig læring",
+    "code": "KRO-08-BK-01",
+    "description": "utforske og gjennomføre ulike aktiviteter i varierte miljøer"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 8,
+    "area": "Deltakelse og samspill",
+    "code": "KRO-08-DS-01",
+    "description": "delta og samarbeide i ulike aktiviteter og respektere andre"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 9,
+    "area": "Bevegelse og kroppslig læring",
+    "code": "KRO-09-BK-01",
+    "description": "praktisere og utvikle ferdigheter i idrettsaktiviteter og dans"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 9,
+    "area": "Uteliv og naturferdsel",
+    "code": "KRO-09-UN-01",
+    "description": "planlegge og gjennomføre turer i ulike naturmiljø"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 10,
+    "area": "Bevegelse og kroppslig læring",
+    "code": "KRO-10-BK-01",
+    "description": "trene på og utvikle ferdigheter i ulike bevegelsesaktiviteter"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 10,
+    "area": "Deltakelse og samspill",
+    "code": "KRO-10-DS-01",
+    "description": "gjøre rede for sammenhengen mellom fysisk aktivitet, livsstil og helse"
+  },
+  {
+    "subject": "Kroppsøving",
+    "grade": 10,
+    "area": "Uteliv og naturferdsel",
+    "code": "KRO-10-UN-01",
+    "description": "praktisere friluftsliv i ulike naturmiljøer og gjøre rede for allemannsretten"
+  }
+]

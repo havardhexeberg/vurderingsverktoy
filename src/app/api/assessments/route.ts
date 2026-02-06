@@ -15,6 +15,7 @@ const createAssessmentSchema = z.object({
   description: z.string().optional(),
   internalNote: z.string().optional(),
   isPublished: z.boolean().optional(),
+  competenceGoalIds: z.array(z.string()).optional(),
 })
 
 // POST - Opprett ny vurdering
@@ -71,6 +72,18 @@ export async function POST(request: NextRequest) {
         student: true,
       },
     })
+
+    // Link competence goals if provided
+    if (data.competenceGoalIds && data.competenceGoalIds.length > 0) {
+      for (const goalId of data.competenceGoalIds) {
+        await prisma.assessmentCompetenceGoal.create({
+          data: {
+            assessmentId: assessment.id,
+            competenceGoalId: goalId,
+          },
+        })
+      }
+    }
 
     return NextResponse.json(assessment)
   } catch (error) {

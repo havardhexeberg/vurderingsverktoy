@@ -17,13 +17,21 @@ import {
   FileBarChart,
   School,
   AlertTriangle,
+  GraduationCap,
+  BarChart3,
+  FileUp,
+  UserPlus,
 } from "lucide-react"
 import { useState } from "react"
 
 const navigation = [
   { name: "Oversikt", href: "/rektor", icon: LayoutDashboard },
+  { name: "Alle elever", href: "/rektor/elever", icon: GraduationCap },
+  { name: "Importer elever", href: "/rektor/import", icon: FileUp },
   { name: "Lærere", href: "/rektor/larere", icon: Users },
   { name: "Faggrupper", href: "/rektor/faggrupper", icon: BookOpen },
+  { name: "Opprett faggruppe", href: "/rektor/faggrupper/ny", icon: UserPlus },
+  { name: "Vurderingspraksis", href: "/rektor/vurderingspraksis", icon: BarChart3 },
   { name: "Rapporter", href: "/rektor/rapporter", icon: FileBarChart },
   { name: "Varsler", href: "/rektor/varsler", icon: AlertTriangle },
 ]

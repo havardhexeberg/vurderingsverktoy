@@ -1,11 +1,12 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -21,7 +22,26 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Plus, Users, BookOpen, ClipboardCheck } from "lucide-react"
+import {
+  Plus,
+  Users,
+  BookOpen,
+  ClipboardCheck,
+  ChevronRight,
+  Calculator,
+  Languages,
+  Globe,
+  Microscope,
+  Building2,
+  BookText,
+  Palette,
+  Music,
+  Utensils,
+  Dumbbell,
+  Loader2,
+  TrendingUp,
+  AlertCircle
+} from "lucide-react"
 import { toast } from "sonner"
 import Link from "next/link"
 
@@ -39,6 +59,25 @@ interface ClassGroup {
   schoolYear: string
   students: { student: Student }[]
   _count: { assessments: number }
+}
+
+// Subject icons and colors
+const subjectConfig: Record<string, { icon: React.ElementType; color: string; bgColor: string }> = {
+  "Matematikk": { icon: Calculator, color: "text-blue-600", bgColor: "bg-blue-50" },
+  "Norsk": { icon: BookText, color: "text-red-600", bgColor: "bg-red-50" },
+  "Engelsk": { icon: Languages, color: "text-purple-600", bgColor: "bg-purple-50" },
+  "Naturfag": { icon: Microscope, color: "text-green-600", bgColor: "bg-green-50" },
+  "Samfunnsfag": { icon: Building2, color: "text-amber-600", bgColor: "bg-amber-50" },
+  "KRLE": { icon: Globe, color: "text-cyan-600", bgColor: "bg-cyan-50" },
+  "Spansk": { icon: Languages, color: "text-orange-600", bgColor: "bg-orange-50" },
+  "Kunst og handverk": { icon: Palette, color: "text-pink-600", bgColor: "bg-pink-50" },
+  "Musikk": { icon: Music, color: "text-indigo-600", bgColor: "bg-indigo-50" },
+  "Mat og helse": { icon: Utensils, color: "text-lime-600", bgColor: "bg-lime-50" },
+  "Kroppsoving": { icon: Dumbbell, color: "text-teal-600", bgColor: "bg-teal-50" },
+}
+
+const getSubjectConfig = (subject: string) => {
+  return subjectConfig[subject] || { icon: BookOpen, color: "text-gray-600", bgColor: "bg-gray-50" }
 }
 
 export default function FaggrupperPage() {
@@ -80,6 +119,34 @@ export default function FaggrupperPage() {
       setIsLoading(false)
     }
   }
+
+  // Group class groups by subject
+  const groupedBySubject = useMemo(() => {
+    const grouped: Record<string, ClassGroup[]> = {}
+    classGroups.forEach((group) => {
+      if (!grouped[group.subject]) {
+        grouped[group.subject] = []
+      }
+      grouped[group.subject].push(group)
+    })
+    // Sort groups within each subject by grade
+    Object.keys(grouped).forEach((subject) => {
+      grouped[subject].sort((a, b) => a.grade - b.grade)
+    })
+    return grouped
+  }, [classGroups])
+
+  // Calculate stats
+  const stats = useMemo(() => {
+    const totalStudents = new Set(
+      classGroups.flatMap((g) => g.students.map((s) => s.student.id))
+    ).size
+    const totalAssessments = classGroups.reduce(
+      (sum, g) => sum + g._count.assessments,
+      0
+    )
+    return { totalStudents, totalAssessments }
+  }, [classGroups])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,23 +205,24 @@ export default function FaggrupperPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <p className="text-gray-500">Laster...</p>
+        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
       </div>
     )
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mine faggrupper</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Mine faggrupper</h1>
           <p className="text-gray-600 mt-1">
-            Administrer dine faggrupper og elever
+            Organisert etter fag
           </p>
         </div>
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="bg-teal-600 hover:bg-teal-700">
               <Plus className="h-4 w-4 mr-2" />
               Ny faggruppe
             </Button>
@@ -185,11 +253,11 @@ export default function FaggrupperPage() {
                       <SelectValue placeholder="Velg fag" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="Matematikk">Matematikk</SelectItem>
-                      <SelectItem value="Norsk">Norsk</SelectItem>
-                      <SelectItem value="Engelsk">Engelsk</SelectItem>
-                      <SelectItem value="Naturfag">Naturfag</SelectItem>
-                      <SelectItem value="Samfunnsfag">Samfunnsfag</SelectItem>
+                      {Object.keys(subjectConfig).map((subj) => (
+                        <SelectItem key={subj} value={subj}>
+                          {subj}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -259,7 +327,11 @@ export default function FaggrupperPage() {
                 >
                   Avbryt
                 </Button>
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-teal-600 hover:bg-teal-700"
+                >
                   {isSubmitting ? "Oppretter..." : "Opprett faggruppe"}
                 </Button>
               </div>
@@ -268,54 +340,120 @@ export default function FaggrupperPage() {
         </Dialog>
       </div>
 
-      {classGroups.length === 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle>Ingen faggrupper</CardTitle>
-            <CardDescription>
-              Du har ingen faggrupper ennå. Opprett en ny for å komme i gang.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-center h-32 text-gray-500">
-              <p>
-                {students.length === 0
-                  ? "Importer elever først, deretter opprett en faggruppe"
-                  : `${students.length} elever tilgjengelig. Klikk "Ny faggruppe" for å starte.`}
-              </p>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white border-0">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-teal-100">Faggrupper</p>
+                <p className="text-3xl font-bold">{classGroups.length}</p>
+              </div>
+              <BookOpen className="w-10 h-10 text-teal-200" />
             </div>
           </CardContent>
         </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Unike elever</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.totalStudents}</p>
+              </div>
+              <Users className="w-10 h-10 text-gray-300" />
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Vurderinger</p>
+                <p className="text-3xl font-bold text-gray-900">{stats.totalAssessments}</p>
+              </div>
+              <ClipboardCheck className="w-10 h-10 text-gray-300" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Empty State */}
+      {classGroups.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Ingen faggrupper</h3>
+            <p className="text-gray-500 mb-4">
+              {students.length === 0
+                ? "Importer elever først, deretter opprett en faggruppe"
+                : `${students.length} elever tilgjengelig. Klikk "Ny faggruppe" for å starte.`}
+            </p>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {classGroups.map((group) => (
-            <Link key={group.id} href={`/faggrupper/${group.id}`}>
-              <Card className="hover:shadow-md transition-shadow cursor-pointer">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{group.name}</CardTitle>
-                    <BookOpen className="h-5 w-5 text-blue-600" />
+        /* Grouped by Subject */
+        <div className="space-y-8">
+          {Object.entries(groupedBySubject).map(([subject, groups]) => {
+            const config = getSubjectConfig(subject)
+            const Icon = config.icon
+            const totalStudents = groups.reduce((sum, g) => sum + g.students.length, 0)
+            const totalAssessments = groups.reduce((sum, g) => sum + g._count.assessments, 0)
+
+            return (
+              <div key={subject} className="space-y-3">
+                {/* Subject Header */}
+                <div className={`flex items-center gap-3 p-3 rounded-lg ${config.bgColor}`}>
+                  <div className={`w-10 h-10 rounded-lg bg-white flex items-center justify-center ${config.color}`}>
+                    <Icon className="w-5 h-5" />
                   </div>
-                  <CardDescription>{group.subject}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-1">
-                      <Users className="h-4 w-4" />
-                      <span>{group.students.length} elever</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <ClipboardCheck className="h-4 w-4" />
-                      <span>{group._count.assessments} vurderinger</span>
-                    </div>
+                  <div className="flex-1">
+                    <h2 className="font-semibold text-gray-900">{subject}</h2>
+                    <p className="text-sm text-gray-600">
+                      {groups.length} {groups.length === 1 ? "gruppe" : "grupper"} · {totalStudents} elever · {totalAssessments} vurderinger
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500 mt-2">
-                    {group.grade}. trinn - {group.schoolYear}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
+                </div>
+
+                {/* Class Group Cards */}
+                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 pl-4">
+                  {groups.map((group) => (
+                    <Link key={group.id} href={`/faggrupper/${group.id}`}>
+                      <Card className="hover:shadow-md hover:border-teal-300 transition-all cursor-pointer group">
+                        <CardContent className="p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div>
+                              <h3 className="font-medium text-gray-900 group-hover:text-teal-700 transition-colors">
+                                {group.name}
+                              </h3>
+                              <Badge variant="secondary" className="mt-1">
+                                {group.grade}. trinn
+                              </Badge>
+                            </div>
+                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-teal-600 transition-colors" />
+                          </div>
+                          <div className="flex items-center gap-4 text-sm text-gray-500">
+                            <div className="flex items-center gap-1">
+                              <Users className="w-4 h-4" />
+                              <span>{group.students.length}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <ClipboardCheck className="w-4 h-4" />
+                              <span>{group._count.assessments}</span>
+                            </div>
+                            {group._count.assessments > 0 && (
+                              <div className="flex items-center gap-1 text-green-600">
+                                <TrendingUp className="w-4 h-4" />
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
         </div>
       )}
     </div>

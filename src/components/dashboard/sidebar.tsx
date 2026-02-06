@@ -10,7 +10,6 @@ import { Separator } from "@/components/ui/separator"
 import {
   LayoutDashboard,
   Users,
-  FileUp,
   User,
   LogOut,
   BookOpen,
@@ -19,17 +18,20 @@ import {
   ShieldOff,
   ClipboardList,
   FileBarChart,
+  Grid3X3,
+  PlusCircle,
 } from "lucide-react"
 import { useState } from "react"
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Ny vurdering", href: "/vurderinger/ny", icon: PlusCircle, highlight: true },
   { name: "Mine faggrupper", href: "/faggrupper", icon: BookOpen },
   { name: "Mine elever", href: "/mine-elever", icon: Users },
+  { name: "Kompetansemål", href: "/kompetansemaal", icon: Grid3X3 },
   { name: "Mine oppgaver", href: "/oppgaver", icon: ClipboardList },
   { name: "Rapporter", href: "/rapporter", icon: FileBarChart },
   { name: "Fritak", href: "/fritak", icon: ShieldOff },
-  { name: "Importer elever", href: "/import", icon: FileUp },
   { name: "Min side", href: "/min-side", icon: User },
 ]
 
@@ -51,7 +53,7 @@ export function Sidebar() {
     <>
       <div className="flex h-16 items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-blue-600" />
+          <BookOpen className="h-6 w-6 text-teal-600" />
           <span className="text-lg font-semibold">Vurdering</span>
         </Link>
         <Button
@@ -69,6 +71,7 @@ export function Sidebar() {
       <nav className="flex-1 space-y-1 px-2 py-4">
         {navigation.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
+          const isHighlight = 'highlight' in item && item.highlight
           return (
             <Link
               key={item.name}
@@ -76,8 +79,10 @@ export function Sidebar() {
               onClick={() => setMobileMenuOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-blue-50 text-blue-700"
+                isHighlight && !isActive
+                  ? "bg-teal-600 text-white hover:bg-teal-700"
+                  : isActive
+                  ? "bg-teal-50 text-teal-700"
                   : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
@@ -93,7 +98,7 @@ export function Sidebar() {
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-blue-100 text-blue-700 text-sm">
+            <AvatarFallback className="bg-teal-100 text-teal-700 text-sm">
               {session?.user?.name ? getInitials(session.user.name) : "?"}
             </AvatarFallback>
           </Avatar>

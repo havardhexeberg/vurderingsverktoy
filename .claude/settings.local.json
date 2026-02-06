@@ -1,7 +1,19 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx create-next-app@latest:*)"
+      "Bash(*)",
+      "Edit",
+      "Write",
+      "Read",
+      "Glob",
+      "Grep",
+      "WebFetch(*)",
+      "WebSearch(*)",
+      "Bash(npx ts-node:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx shadcn@latest add textarea:*)",
+      "Bash(vercel:*)",
+      "Bash(curl:*)"
     ]
   }
 }
