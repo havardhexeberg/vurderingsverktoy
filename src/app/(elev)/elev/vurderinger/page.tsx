@@ -2,12 +2,11 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { TabsContent } from "@/components/ui/tabs"
-import { BookOpen, Bell } from "lucide-react"
-import { SubjectTabs } from "@/components/shared/subject-tabs"
-import { AssessmentTable } from "@/components/shared/assessment-table"
+import { useState, useEffect, useMemo } from "react"
+import { Loader2, MessageSquare } from "lucide-react"
+import { format } from "date-fns"
+import { nb } from "date-fns/locale"
+import { GradeChip } from "@/components/dashboard/scannable"
 
 interface Assessment {
   id: string
@@ -17,15 +16,8 @@ interface Assessment {
   grade: number | null
   feedback: string | null
   description: string | null
-  classGroup: {
-    subject: string
-  }
-  competenceGoals: Array<{
-    competenceGoal: {
-      code: string
-      description: string
-    }
-  }>
+  classGroup: { subject: string }
+  competenceGoals: Array<{ competenceGoal: { code: string; description: string } }>
 }
 
 interface StudentProfile {
@@ -34,144 +26,167 @@ interface StudentProfile {
   totalAssessments: number
 }
 
+const FORM_LABELS: Record<string, string> = {
+  WRITTEN: "Skriftlig",
+  ORAL: "Muntlig",
+  ORAL_PRACTICAL: "Muntlig-praktisk",
+  PRACTICAL: "Praktisk",
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  ONGOING: "Underveis",
+  MIDTERM: "Halvår",
+  FINAL: "Standpunkt",
+}
+
 export default function VurderingerPage() {
   const [profile, setProfile] = useState<StudentProfile | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [activeSubject, setActiveSubject] = useState<string>("")
-  const [newCounts, setNewCounts] = useState<Record<string, number>>({})
-  const [hasNewAssessments, setHasNewAssessments] = useState(false)
+  const [filterSubject, setFilterSubject] = useState("alle")
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
-    fetchProfile()
+    fetch("/api/elev/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then(setProfile)
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [])
 
-  useEffect(() => {
-    if (profile && profile.subjects.length > 0 && !activeSubject) {
-      setActiveSubject(profile.subjects[0])
-    }
+  const allAssessments = useMemo(() => {
+    if (!profile) return []
+    return Object.values(profile.assessmentsBySubject)
+      .flat()
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
   }, [profile])
 
-  useEffect(() => {
-    if (profile) {
-      const lastLogin = localStorage.getItem("lastLoginAt")
-      if (lastLogin) {
-        const lastLoginDate = new Date(lastLogin)
-        const counts: Record<string, number> = {}
-        let totalNew = 0
-        profile.subjects.forEach((subject) => {
-          const assessments = profile.assessmentsBySubject[subject] || []
-          const newCount = assessments.filter(
-            (a) => new Date(a.date) > lastLoginDate
-          ).length
-          counts[subject] = newCount
-          totalNew += newCount
-        })
-        setNewCounts(counts)
-        setHasNewAssessments(totalNew > 0)
-      }
-      localStorage.setItem("lastLoginAt", new Date().toISOString())
-    }
-  }, [profile])
-
-  const fetchProfile = async () => {
-    try {
-      const response = await fetch("/api/elev/profile")
-      if (response.ok) {
-        const data = await response.json()
-        setProfile(data)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const filtered = useMemo(() => {
+    if (filterSubject === "alle") return allAssessments
+    return allAssessments.filter((a) => a.classGroup.subject === filterSubject)
+  }, [allAssessments, filterSubject])
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Laster...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-elev" />
+      </div>
+    )
   }
 
   if (!profile) {
-    return <div className="text-center p-8">Kunne ikke laste data</div>
+    return <div className="text-center p-8 text-scan-text2">Kunne ikke laste data</div>
   }
 
-  const badges: Record<string, number> = {}
-  profile.subjects.forEach((subject) => {
-    badges[subject] = profile.assessmentsBySubject[subject]?.length || 0
-  })
-
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-cyan-600" />
-          Mine vurderinger
-        </h1>
-        <p className="text-gray-600">Alle publiserte vurderinger fra lærerne dine</p>
+        <h1 className="text-[22px] font-bold text-scan-text tracking-tight">Alle vurderinger</h1>
+        <p className="text-sm text-scan-text2 mt-0.5">{profile.totalAssessments} vurderinger totalt</p>
       </div>
 
-      {/* Summary */}
-      <Card className="bg-gradient-to-r from-cyan-50 to-blue-50 border-cyan-200">
-        <CardContent className="pt-6">
-          {hasNewAssessments ? (
-            <div className="flex items-center gap-3 mb-4">
-              <Bell className="h-5 w-5 text-cyan-600" />
-              <span className="text-sm font-medium text-cyan-800">Du har nye vurderinger!</span>
-            </div>
-          ) : null}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-bold text-cyan-600">{profile.totalAssessments}</div>
-              <div className="text-sm text-gray-600">Totalt</div>
-            </div>
-            {profile.subjects.slice(0, 3).map((subject) => {
-              const count = profile.assessmentsBySubject[subject]?.length || 0
-              return (
-                <div key={subject} className="text-center">
-                  <div className="text-2xl font-bold text-cyan-600">{count}</div>
-                  <div className="text-sm text-gray-600">{subject}</div>
-                </div>
-              )
-            })}
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Subject tabs */}
-      <SubjectTabs
-        subjects={profile.subjects}
-        activeSubject={activeSubject}
-        onValueChange={setActiveSubject}
-        badges={badges}
-        notifications={newCounts}
-      >
+      {/* Filter buttons */}
+      <div className="flex gap-1 overflow-x-auto pb-1">
+        <button
+          onClick={() => setFilterSubject("alle")}
+          className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors whitespace-nowrap ${
+            filterSubject === "alle"
+              ? "bg-elev-light border-elev-border text-elev"
+              : "border-scan-border text-scan-text2 hover:border-elev-border"
+          }`}
+        >
+          Alle ({allAssessments.length})
+        </button>
         {profile.subjects.map((subject) => {
-          const assessments = profile.assessmentsBySubject[subject] || []
-
+          const count = profile.assessmentsBySubject[subject]?.length || 0
+          if (count === 0) return null
           return (
-            <TabsContent key={subject} value={subject} className="space-y-6">
-              {assessments.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold">Ingen vurderinger ennå</h3>
-                    <p className="text-gray-500">Du har ingen publiserte vurderinger i dette faget.</p>
-                  </CardContent>
-                </Card>
-              ) : (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Vurderinger i {subject}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <AssessmentTable assessments={assessments} />
-                  </CardContent>
-                </Card>
-              )}
-            </TabsContent>
+            <button
+              key={subject}
+              onClick={() => setFilterSubject(subject)}
+              className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors whitespace-nowrap ${
+                filterSubject === subject
+                  ? "bg-elev-light border-elev-border text-elev"
+                  : "border-scan-border text-scan-text2 hover:border-elev-border"
+              }`}
+            >
+              {subject} ({count})
+            </button>
           )
         })}
-      </SubjectTabs>
+      </div>
+
+      {/* Assessment list */}
+      <div className="bg-scan-surface rounded-xl border border-scan-border overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="px-4 py-8 text-center text-sm text-scan-text3">Ingen vurderinger funnet</div>
+        ) : (
+          filtered.map((a, i) => {
+            const isExpanded = expandedId === a.id
+            return (
+              <div key={a.id}>
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : a.id)}
+                  className={`w-full text-left px-4 py-3 flex items-center gap-3 hover:bg-scan-bg transition-colors ${
+                    i < filtered.length - 1 || isExpanded ? "border-b border-gray-100" : ""
+                  }`}
+                >
+                  <GradeChip grade={a.grade} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-medium text-scan-text">{a.classGroup.subject}</span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-elev-light text-elev border border-elev-border">
+                        {FORM_LABELS[a.form] || a.form}
+                      </span>
+                      <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-gray-50 text-scan-text3 border border-scan-border">
+                        {TYPE_LABELS[a.type] || a.type}
+                      </span>
+                    </div>
+                    {a.description && (
+                      <div className="text-xs text-scan-text2 mt-0.5 truncate">{a.description}</div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {a.feedback && <MessageSquare className="h-3.5 w-3.5 text-elev" />}
+                    <span className="text-xs text-scan-text3">
+                      {format(new Date(a.date), "d. MMM", { locale: nb })}
+                    </span>
+                  </div>
+                </button>
+
+                {/* Expanded detail */}
+                {isExpanded && (
+                  <div className="bg-scan-bg px-4 py-3 border-b border-gray-100 space-y-3">
+                    <div className="text-xs text-scan-text3">
+                      {format(new Date(a.date), "d. MMMM yyyy", { locale: nb })}
+                    </div>
+
+                    {a.competenceGoals.length > 0 && (
+                      <div>
+                        <div className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider mb-1">Kompetansemål</div>
+                        <div className="space-y-1">
+                          {a.competenceGoals.map((cg, j) => (
+                            <div key={j} className="text-xs text-scan-text2">
+                              <span className="font-mono text-scan-text3 mr-1.5">{cg.competenceGoal.code}</span>
+                              {cg.competenceGoal.description}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {a.feedback && (
+                      <div className="flex items-start gap-2 p-2.5 bg-elev-light rounded-lg border border-elev-border">
+                        <MessageSquare className="h-3.5 w-3.5 text-elev mt-0.5 flex-shrink-0" />
+                        <p className="text-xs text-scan-text leading-relaxed">{a.feedback}</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })
+        )}
+      </div>
     </div>
   )
 }

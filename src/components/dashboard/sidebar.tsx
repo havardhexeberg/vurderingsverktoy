@@ -6,33 +6,22 @@ import { signOut, useSession } from "next-auth/react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 import {
   LayoutDashboard,
-  Users,
-  User,
   LogOut,
   BookOpen,
   Menu,
   X,
-  ShieldOff,
   ClipboardList,
-  FileBarChart,
-  Grid3X3,
   PlusCircle,
 } from "lucide-react"
 import { useState } from "react"
 
 const navigation = [
-  { name: "Forside", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Oversikt", href: "/dashboard", icon: LayoutDashboard },
   { name: "Ny vurdering", href: "/vurderinger/ny", icon: PlusCircle },
-  { name: "Mine faggrupper", href: "/faggrupper", icon: BookOpen },
-  { name: "Mine elever", href: "/mine-elever", icon: Users },
-  { name: "Kompetansemål", href: "/kompetansemaal", icon: Grid3X3 },
-  { name: "Mine oppgaver", href: "/oppgaver", icon: ClipboardList },
-  { name: "Rapporter", href: "/rapporter", icon: FileBarChart },
-  { name: "Fritak", href: "/fritak", icon: ShieldOff },
-  { name: "Min side", href: "/min-side", icon: User },
+  { name: "Faggrupper", href: "/faggrupper", icon: BookOpen },
+  { name: "Oppgaver", href: "/oppgaver", icon: ClipboardList },
 ]
 
 export function Sidebar() {
@@ -51,10 +40,10 @@ export function Sidebar() {
 
   const SidebarContent = () => (
     <>
-      <div className="flex h-16 items-center justify-between px-4">
+      <div className="flex h-14 items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-brand-600" />
-          <span className="text-lg font-semibold">Lærer</span>
+          <BookOpen className="h-5 w-5 text-brand-600" />
+          <span className="text-base font-semibold text-scan-text">Vurdering</span>
         </Link>
         <Button
           variant="ghost"
@@ -65,8 +54,8 @@ export function Sidebar() {
           <X className="h-5 w-5" />
         </Button>
       </div>
-      <Separator />
-      <nav className="flex-1 space-y-1 px-2 py-4">
+      <div className="h-px bg-scan-border" />
+      <nav className="flex-1 space-y-0.5 px-2 py-3">
         {navigation.map((item) => {
           const isActive =
             pathname === item.href || pathname.startsWith(item.href + "/")
@@ -79,28 +68,28 @@ export function Sidebar() {
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
                   ? "bg-brand-50 text-brand-700"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                  : "text-scan-text2 hover:bg-scan-bg hover:text-scan-text"
               )}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-4 w-4" />
               {item.name}
             </Link>
           )
         })}
       </nav>
-      <Separator />
-      <div className="p-4">
+      <div className="h-px bg-scan-border" />
+      <div className="p-3">
         <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-brand-100 text-brand-700 text-sm">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback className="bg-brand-100 text-brand-700 text-xs">
               {session?.user?.name ? getInitials(session.user.name) : "?"}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-scan-text truncate">
               {session?.user?.name}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-scan-text3 truncate">
               {session?.user?.email}
             </p>
           </div>
@@ -108,7 +97,7 @@ export function Sidebar() {
         <Button
           variant="outline"
           size="sm"
-          className="w-full"
+          className="w-full text-scan-text2 border-scan-border"
           onClick={() => signOut({ callbackUrl: "/login" })}
         >
           <LogOut className="h-4 w-4 mr-2" />
@@ -121,7 +110,7 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile menu button */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-4 md:hidden">
+      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center gap-4 border-b border-scan-border bg-scan-surface px-4 md:hidden">
         <Button
           variant="ghost"
           size="icon"
@@ -129,7 +118,7 @@ export function Sidebar() {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <span className="text-lg font-semibold">Lærer</span>
+        <span className="text-base font-semibold text-scan-text">Vurdering</span>
       </div>
 
       {/* Mobile menu overlay */}
@@ -143,7 +132,7 @@ export function Sidebar() {
       {/* Mobile sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-white transition-transform md:hidden",
+          "fixed inset-y-0 left-0 z-50 w-64 transform bg-scan-surface transition-transform md:hidden",
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -153,7 +142,7 @@ export function Sidebar() {
       </aside>
 
       {/* Desktop sidebar */}
-      <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col border-r bg-white">
+      <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col border-r border-scan-border bg-scan-surface">
         <div className="flex h-full flex-col">
           <SidebarContent />
         </div>

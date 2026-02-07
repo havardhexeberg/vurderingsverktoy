@@ -19,10 +19,10 @@ export default async function ElevLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-scan-bg">
       <ElevSidebar />
-      <main className="md:pl-64 pt-16 md:pt-0">
-        <div className="p-6">{children}</div>
+      <main className="md:ml-56 pt-14 md:pt-0">
+        <div className="p-5 max-w-[960px]">{children}</div>
       </main>
     </div>
   )

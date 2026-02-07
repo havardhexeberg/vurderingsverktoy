@@ -3,17 +3,9 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Loader2, RefreshCw, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import {
-  AlertTriangle,
-  Clock,
-  Users,
-  BookOpen,
-  RefreshCw,
-  CheckCircle,
-} from "lucide-react"
+import { StatusDot } from "@/components/dashboard/scannable"
 
 interface Alert {
   type: string
@@ -25,30 +17,41 @@ interface Alert {
   studentCount?: number
 }
 
+function mapPriority(p: string): "ok" | "warn" | "crit" {
+  if (p === "CRITICAL") return "crit"
+  if (p === "WARNING") return "warn"
+  return "ok"
+}
+
+function alertBg(p: string) {
+  if (p === "CRITICAL") return "bg-red-50 border-red-200"
+  if (p === "WARNING") return "bg-amber-50 border-amber-200"
+  return "bg-rektor-light border-rektor-border"
+}
+
 export default function VarslerPage() {
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
-  useEffect(() => {
-    fetchAlerts()
-  }, [])
-
-  const fetchAlerts = async () => {
-    try {
-      const response = await fetch("/api/rektor/alerts")
-      if (response.ok) {
-        const data = await response.json()
-        setAlerts(data)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setIsLoading(false)
-    }
+  const fetchAlerts = () => {
+    fetch("/api/rektor/alerts")
+      .then((r) => r.ok ? r.json() : [])
+      .then(setAlerts)
+      .catch(console.error)
+      .finally(() => { setIsLoading(false); setIsRefreshing(false) })
   }
 
+  useEffect(() => { fetchAlerts() }, [])
+
+  const handleRefresh = () => { setIsRefreshing(true); fetchAlerts() }
+
   if (isLoading) {
-    return <div className="flex justify-center p-8">Laster...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-rektor" />
+      </div>
+    )
   }
 
   const criticalAlerts = alerts.filter((a) => a.priority === "CRITICAL")
@@ -56,171 +59,74 @@ export default function VarslerPage() {
   const infoAlerts = alerts.filter((a) => a.priority === "INFO")
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Varsler</h1>
-          <p className="text-gray-600">Oversikt over situasjoner som krever oppfølging</p>
-        </div>
-        <Button variant="outline" onClick={() => { setIsLoading(true); fetchAlerts(); }}>
-          <RefreshCw className="h-4 w-4 mr-2" />
+        <h1 className="text-[22px] font-bold text-scan-text tracking-tight">Varsler</h1>
+        <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isRefreshing} className="border-scan-border text-scan-text2">
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
           Oppdater
         </Button>
       </div>
 
-      {/* Summary */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <Card className="border-l-4 border-l-red-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              Kritiske
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{criticalAlerts.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-amber-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-              Advarsler
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{warningAlerts.length}</div>
-          </CardContent>
-        </Card>
-        <Card className="border-l-4 border-l-blue-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-blue-600" />
-              Info
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{infoAlerts.length}</div>
-          </CardContent>
-        </Card>
+      {/* Summary pills */}
+      <div className="flex gap-2">
+        {[
+          { label: "Kritiske", count: criticalAlerts.length, status: "crit" as const },
+          { label: "Advarsler", count: warningAlerts.length, status: "warn" as const },
+          { label: "Info", count: infoAlerts.length, status: "ok" as const },
+        ].map((g) => (
+          <div key={g.label} className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-scan-border bg-scan-surface text-sm">
+            <StatusDot status={g.status} />
+            <span className="font-medium text-scan-text2">{g.label}</span>
+            <span className="font-mono text-xs text-scan-text3">{g.count}</span>
+          </div>
+        ))}
       </div>
 
-      {/* Critical alerts */}
+      {/* Alerts grouped */}
       {criticalAlerts.length > 0 && (
-        <Card className="border-red-200">
-          <CardHeader className="bg-red-50 rounded-t-lg">
-            <CardTitle className="text-red-800 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Kritiske varsler ({criticalAlerts.length})
-            </CardTitle>
-            <CardDescription className="text-red-700">
-              Disse krever umiddelbar oppfølging
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4 space-y-3">
-            {criticalAlerts.map((alert, i) => (
-              <AlertCard key={i} alert={alert} />
-            ))}
-          </CardContent>
-        </Card>
+        <AlertGroup label="Kritiske" alerts={criticalAlerts} />
       )}
-
-      {/* Warning alerts */}
       {warningAlerts.length > 0 && (
-        <Card className="border-amber-200">
-          <CardHeader className="bg-amber-50 rounded-t-lg">
-            <CardTitle className="text-amber-800 flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Advarsler ({warningAlerts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="pt-4 space-y-3">
-            {warningAlerts.map((alert, i) => (
-              <AlertCard key={i} alert={alert} />
-            ))}
-          </CardContent>
-        </Card>
+        <AlertGroup label="Advarsler" alerts={warningAlerts} />
       )}
-
-      {/* Info alerts */}
       {infoAlerts.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-blue-600" />
-              Informasjon ({infoAlerts.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {infoAlerts.map((alert, i) => (
-              <AlertCard key={i} alert={alert} />
-            ))}
-          </CardContent>
-        </Card>
+        <AlertGroup label="Informasjon" alerts={infoAlerts} />
       )}
 
-      {/* No alerts */}
       {alerts.length === 0 && (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold">Ingen varsler</h3>
-            <p className="text-gray-500">Alt ser bra ut på skolen!</p>
-          </CardContent>
-        </Card>
+        <div className="bg-scan-surface border border-scan-border rounded-xl p-12 text-center">
+          <CheckCircle className="w-10 h-10 text-status-ok mx-auto mb-3" />
+          <h3 className="text-base font-medium text-scan-text">Alt i orden!</h3>
+          <p className="text-sm text-scan-text3 mt-1">Ingen varsler som krever handling akkurat nå.</p>
+        </div>
       )}
     </div>
   )
 }
 
-function AlertCard({ alert }: { alert: Alert }) {
+function AlertGroup({ label, alerts }: { label: string; alerts: Alert[] }) {
   return (
-    <div
-      className={`p-4 rounded-lg border ${
-        alert.priority === "CRITICAL"
-          ? "bg-red-50 border-red-200"
-          : alert.priority === "WARNING"
-          ? "bg-amber-50 border-amber-200"
-          : "bg-blue-50 border-blue-200"
-      }`}
-    >
-      <div className="flex items-start justify-between">
-        <div>
-          <h4 className="font-medium">{alert.title}</h4>
-          <p className="text-sm text-gray-600 mt-1">{alert.description}</p>
-          <div className="flex gap-4 mt-2 text-xs text-gray-500">
-            {alert.teacherName && (
-              <span className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {alert.teacherName}
-              </span>
-            )}
-            {alert.classGroupName && (
-              <span className="flex items-center gap-1">
-                <BookOpen className="h-3 w-3" />
-                {alert.classGroupName}
-              </span>
-            )}
-            {alert.studentCount && (
-              <span>{alert.studentCount} elever berørt</span>
-            )}
+    <div className="space-y-2">
+      <h2 className="text-xs font-medium text-scan-text3 uppercase tracking-wider">{label} ({alerts.length})</h2>
+      <div className="flex flex-col gap-2">
+        {alerts.map((a, i) => (
+          <div
+            key={i}
+            className={`flex items-center gap-3 p-4 rounded-xl border ${alertBg(a.priority)}`}
+          >
+            <StatusDot status={mapPriority(a.priority)} size="md" />
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-scan-text">{a.title}</div>
+              <div className="text-sm text-scan-text2 mt-0.5">{a.description}</div>
+              <div className="flex gap-3 mt-1.5 text-xs text-scan-text3">
+                {a.teacherName && <span>{a.teacherName}</span>}
+                {a.classGroupName && <span>{a.classGroupName}</span>}
+                {a.studentCount && <span>{a.studentCount} elever</span>}
+              </div>
+            </div>
           </div>
-        </div>
-        <Badge
-          variant={
-            alert.priority === "CRITICAL"
-              ? "destructive"
-              : alert.priority === "WARNING"
-              ? "secondary"
-              : "default"
-          }
-        >
-          {alert.priority === "CRITICAL"
-            ? "Kritisk"
-            : alert.priority === "WARNING"
-            ? "Advarsel"
-            : "Info"}
-        </Badge>
+        ))}
       </div>
     </div>
   )

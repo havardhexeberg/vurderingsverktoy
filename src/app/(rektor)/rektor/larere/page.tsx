@@ -2,31 +2,16 @@
 
 export const dynamic = 'force-dynamic'
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
-import { Users, BookOpen, FileText, AlertTriangle, CheckCircle } from "lucide-react"
+import { useState, useEffect, useMemo } from "react"
+import Link from "next/link"
+import { Loader2 } from "lucide-react"
+import { StatusDot } from "@/components/dashboard/scannable"
 
 interface TeacherData {
   id: string
   name: string
   email: string
-  classGroups: Array<{
-    id: string
-    name: string
-    subject: string
-    studentCount: number
-  }>
+  classGroups: Array<{ id: string; name: string; subject: string; studentCount: number }>
   totalStudents: number
   totalAssessments: number
   criticalStudents: number
@@ -34,138 +19,116 @@ interface TeacherData {
   okStudents: number
 }
 
+function BarInline({ pct, width = 70 }: { pct: number; width?: number }) {
+  const color = pct >= 80 ? "bg-status-ok" : pct >= 50 ? "bg-status-warn" : "bg-status-crit"
+  const textColor = pct >= 80 ? "text-status-ok" : pct >= 50 ? "text-status-warn" : "text-status-crit"
+  return (
+    <div className="flex items-center gap-2">
+      <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden flex-shrink-0" style={{ width }}>
+        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${Math.min(pct, 100)}%` }} />
+      </div>
+      <span className={`font-mono text-xs font-medium min-w-[32px] text-right ${textColor}`}>{pct}%</span>
+    </div>
+  )
+}
+
 export default function LarerePage() {
-  const router = useRouter()
   const [teachers, setTeachers] = useState<TeacherData[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [sortBy, setSortBy] = useState("status")
 
   useEffect(() => {
-    fetchTeachers()
+    fetch("/api/rektor/teachers")
+      .then((r) => r.ok ? r.json() : [])
+      .then(setTeachers)
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [])
 
-  const fetchTeachers = async () => {
-    try {
-      const response = await fetch("/api/rektor/teachers")
-      if (response.ok) {
-        const data = await response.json()
-        setTeachers(data)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const rows = useMemo(() => {
+    const enriched = teachers.map((t) => {
+      const total = t.totalStudents || 1
+      const vurdertPct = Math.round(((t.okStudents + t.warningStudents) / total) * 100)
+      const status: "ok" | "warn" | "crit" =
+        t.criticalStudents > 3 ? "crit" : t.criticalStudents > 0 ? "warn" : "ok"
+      const subjects = t.classGroups.map((cg) => cg.subject).filter((v, i, a) => a.indexOf(v) === i).join(", ")
+      return { ...t, vurdertPct, status, subjects }
+    })
+    if (sortBy === "status") enriched.sort((a, b) => a.vurdertPct - b.vurdertPct)
+    if (sortBy === "navn") enriched.sort((a, b) => a.name.localeCompare(b.name))
+    if (sortBy === "standpunkt") enriched.sort((a, b) => b.criticalStudents - a.criticalStudents)
+    return enriched
+  }, [teachers, sortBy])
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Laster...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-rektor" />
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Lærere</h1>
-        <p className="text-gray-600">Oversikt over lærere og deres faggrupper</p>
+    <div className="space-y-5">
+      <h1 className="text-[22px] font-bold text-scan-text tracking-tight">Lærere</h1>
+
+      {/* Sort buttons */}
+      <div className="flex gap-1">
+        {[
+          { key: "status", label: "Trenger oppfølging" },
+          { key: "navn", label: "Navn" },
+          { key: "standpunkt", label: "Kritiske elever" },
+        ].map((s) => (
+          <button
+            key={s.key}
+            onClick={() => setSortBy(s.key)}
+            className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+              sortBy === s.key
+                ? "bg-rektor-light border-rektor-border text-rektor"
+                : "border-scan-border text-scan-text2 hover:border-rektor-border"
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
       </div>
 
-      {/* Summary */}
-      <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Antall lærere</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{teachers.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Totalt faggrupper</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {teachers.reduce((sum, t) => sum + t.classGroups.length, 0)}
+      {/* Table */}
+      <div className="bg-scan-surface rounded-xl border border-scan-border overflow-hidden">
+        <div className="grid grid-cols-[minmax(150px,1fr)_120px_60px_130px_100px] gap-3 px-4 py-2.5 border-b border-scan-border">
+          <span className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider">Lærer</span>
+          <span className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider">Fag</span>
+          <span className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider text-center">Grupper</span>
+          <span className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider">Vurderingsgrad</span>
+          <span className="text-[11px] font-semibold text-scan-text3 uppercase tracking-wider text-center">Kritiske</span>
+        </div>
+        {rows.map((t, i) => (
+          <Link
+            key={t.id}
+            href={`/rektor/larere/${t.id}`}
+            className={`grid grid-cols-[minmax(150px,1fr)_120px_60px_130px_100px] gap-3 px-4 py-2.5 items-center hover:bg-scan-bg transition-colors ${
+              t.status === "crit" ? "bg-red-50/50" : ""
+            } ${i < rows.length - 1 ? "border-b border-gray-100" : ""}`}
+          >
+            <div className="flex items-center gap-2">
+              <StatusDot status={t.status} />
+              <span className="text-sm font-medium text-scan-text">{t.name}</span>
             </div>
-          </CardContent>
-        </Card>
+            <span className="text-[13px] text-scan-text2 truncate">{t.subjects || "–"}</span>
+            <span className="text-[13px] font-mono text-scan-text2 text-center">{t.classGroups.length}</span>
+            <BarInline pct={t.vurdertPct} />
+            <div className="text-center">
+              {t.criticalStudents > 0 ? (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-status-crit border border-red-200">
+                  {t.criticalStudents}
+                </span>
+              ) : (
+                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-50 text-status-ok border border-green-200">✓</span>
+              )}
+            </div>
+          </Link>
+        ))}
       </div>
-
-      {/* Teacher list */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Alle lærere</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {teachers.length === 0 ? (
-            <p className="text-center py-8 text-gray-500">Ingen lærere funnet</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Lærer</TableHead>
-                  <TableHead>Faggrupper</TableHead>
-                  <TableHead>Elever</TableHead>
-                  <TableHead>Status</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {teachers.map((teacher) => {
-                  const totalWithStatus =
-                    teacher.okStudents + teacher.warningStudents + teacher.criticalStudents
-                  const okPercentage =
-                    totalWithStatus > 0
-                      ? Math.round((teacher.okStudents / totalWithStatus) * 100)
-                      : 0
-
-                  return (
-                    <TableRow key={teacher.id} className="cursor-pointer" onClick={() => router.push(`/rektor/larere/${teacher.id}`)}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{teacher.name}</div>
-                          <div className="text-sm text-gray-500">{teacher.email}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-wrap gap-1">
-                          {teacher.classGroups.slice(0, 3).map((cg) => (
-                            <Badge key={cg.id} variant="outline" className="text-xs">
-                              {cg.subject}
-                            </Badge>
-                          ))}
-                          {teacher.classGroups.length > 3 && (
-                            <Badge variant="secondary" className="text-xs">
-                              +{teacher.classGroups.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell>{teacher.totalStudents}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {teacher.criticalStudents > 0 ? (
-                            <Badge variant="destructive">
-                              {teacher.criticalStudents} kritisk
-                            </Badge>
-                          ) : teacher.warningStudents > 0 ? (
-                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
-                              {teacher.warningStudents} nesten
-                            </Badge>
-                          ) : (
-                            <Badge variant="default">
-                              <CheckCircle className="h-3 w-3 mr-1" />
-                              OK
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
     </div>
   )
 }

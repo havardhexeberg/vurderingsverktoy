@@ -1,17 +1,15 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
-  AlertTriangle,
-  Clock,
-  CheckCircle,
   RefreshCw,
   Users,
+  Loader2,
+  CheckCircle,
 } from "lucide-react"
 import Link from "next/link"
+import { StatusDot } from "@/components/dashboard/scannable"
 
 interface GeneratedTask {
   type: string
@@ -30,28 +28,16 @@ interface TaskSummary {
   manualPending: number
 }
 
-const PRIORITY_CONFIG = {
-  CRITICAL: {
-    label: "Kritisk",
-    icon: AlertTriangle,
-    color: "text-red-600",
-    bg: "bg-red-50 border-red-200",
-    badge: "destructive" as const,
-  },
-  SOON: {
-    label: "Snart",
-    icon: Clock,
-    color: "text-amber-600",
-    bg: "bg-amber-50 border-amber-200",
-    badge: "secondary" as const,
-  },
-  LATER: {
-    label: "Senere",
-    icon: CheckCircle,
-    color: "text-blue-600",
-    bg: "bg-blue-50 border-blue-200",
-    badge: "default" as const,
-  },
+const PRIORITY_STATUS = {
+  CRITICAL: "crit" as const,
+  SOON: "warn" as const,
+  LATER: "ok" as const,
+}
+
+const PRIORITY_LABELS = {
+  CRITICAL: "Haster",
+  SOON: "Snart",
+  LATER: "Planlegg",
 }
 
 export default function OppgaverPage() {
@@ -87,10 +73,13 @@ export default function OppgaverPage() {
   }
 
   if (isLoading) {
-    return <div className="flex justify-center p-8">Laster oppgaver...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
+      </div>
+    )
   }
 
-  // Apply filter
   const filteredTasks = priorityFilter
     ? generatedTasks.filter((t) => t.priority === priorityFilter)
     : generatedTasks
@@ -101,17 +90,20 @@ export default function OppgaverPage() {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Mine oppgaver</h1>
-          <p className="text-gray-600">
-            Automatisk genererte påminnelser og oppgaver
+          <h1 className="text-2xl font-bold text-scan-text">Oppgaver</h1>
+          <p className="text-sm text-scan-text2">
+            Automatisk genererte påminnelser
           </p>
         </div>
         <Button
           variant="outline"
+          size="sm"
           onClick={handleRefresh}
           disabled={isRefreshing}
+          className="border-scan-border text-scan-text2"
         >
           <RefreshCw
             className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
@@ -120,219 +112,98 @@ export default function OppgaverPage() {
         </Button>
       </div>
 
-      {/* Summary cards — compact, clickable as filters */}
+      {/* Summary row */}
       {summary && (
-        <div className="grid gap-4 sm:grid-cols-4">
-          <Card
-            className={`border-l-4 border-l-red-500 cursor-pointer transition-all hover:shadow-md ${
-              priorityFilter === "CRITICAL" ? "ring-2 ring-red-500" : ""
-            }`}
-            onClick={() =>
-              setPriorityFilter(
-                priorityFilter === "CRITICAL" ? null : "CRITICAL"
-              )
-            }
-          >
-            <CardContent className="py-3 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 flex items-center gap-1">
-                  <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
-                  Kritisk
-                </span>
-                <span className="text-xl font-bold text-red-600">
-                  {summary.critical}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card
-            className={`border-l-4 border-l-amber-500 cursor-pointer transition-all hover:shadow-md ${
-              priorityFilter === "SOON" ? "ring-2 ring-amber-500" : ""
-            }`}
-            onClick={() =>
-              setPriorityFilter(priorityFilter === "SOON" ? null : "SOON")
-            }
-          >
-            <CardContent className="py-3 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 flex items-center gap-1">
-                  <Clock className="h-3.5 w-3.5 text-amber-600" />
-                  Snart
-                </span>
-                <span className="text-xl font-bold text-amber-600">
-                  {summary.soon}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card
-            className={`border-l-4 border-l-blue-500 cursor-pointer transition-all hover:shadow-md ${
-              priorityFilter === "LATER" ? "ring-2 ring-blue-500" : ""
-            }`}
-            onClick={() =>
-              setPriorityFilter(priorityFilter === "LATER" ? null : "LATER")
-            }
-          >
-            <CardContent className="py-3 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600 flex items-center gap-1">
-                  <CheckCircle className="h-3.5 w-3.5 text-blue-600" />
-                  Senere
-                </span>
-                <span className="text-xl font-bold text-blue-600">
-                  {summary.later}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="py-3 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Totalt</span>
-                <span className="text-xl font-bold">
-                  {summary.critical + summary.soon + summary.later}
-                </span>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="flex gap-2">
+          {(["CRITICAL", "SOON", "LATER"] as const).map((priority) => {
+            const count = priority === "CRITICAL" ? summary.critical : priority === "SOON" ? summary.soon : summary.later
+            const isActive = priorityFilter === priority
+            return (
+              <button
+                key={priority}
+                onClick={() => setPriorityFilter(isActive ? null : priority)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-sm transition-colors ${
+                  isActive
+                    ? "bg-brand-50 border-brand-300 text-brand-700"
+                    : "bg-scan-surface border-scan-border text-scan-text2 hover:border-brand-300"
+                }`}
+              >
+                <StatusDot status={PRIORITY_STATUS[priority]} />
+                <span className="font-medium">{PRIORITY_LABELS[priority]}</span>
+                <span className="font-mono text-xs">{count}</span>
+              </button>
+            )
+          })}
+          <span className="flex items-center px-3 text-sm font-mono text-scan-text3">
+            {summary.critical + summary.soon + summary.later} totalt
+          </span>
         </div>
       )}
 
-      {priorityFilter && (
-        <div className="flex items-center gap-2">
-          <Badge variant="outline">
-            Filtrert:{" "}
-            {priorityFilter === "CRITICAL"
-              ? "Kritisk"
-              : priorityFilter === "SOON"
-              ? "Snart"
-              : "Senere"}
-          </Badge>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setPriorityFilter(null)}
-          >
-            Vis alle
-          </Button>
-        </div>
-      )}
-
-      {/* Critical tasks */}
+      {/* Task groups */}
       {criticalTasks.length > 0 && (
-        <Card className="border-red-200">
-          <CardHeader className="bg-red-50 rounded-t-lg">
-            <CardTitle className="text-red-800 flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
-              Krever umiddelbar handling ({criticalTasks.length})
-            </CardTitle>
-            <CardDescription className="text-red-700">
-              Disse oppgavene bør løses så snart som mulig
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-3">
-              {criticalTasks.map((task, i) => (
-                <TaskCard key={`critical-${i}`} task={task} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <TaskGroup label="Haster" status="crit" tasks={criticalTasks} />
       )}
-
-      {/* Soon tasks */}
       {soonTasks.length > 0 && (
-        <Card className="border-amber-200">
-          <CardHeader className="bg-amber-50 rounded-t-lg">
-            <CardTitle className="text-amber-800 flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Bør gjøres snart ({soonTasks.length})
-            </CardTitle>
-            <CardDescription className="text-amber-700">
-              Planlegg tid for disse oppgavene
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="pt-4">
-            <div className="space-y-3">
-              {soonTasks.map((task, i) => (
-                <TaskCard key={`soon-${i}`} task={task} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <TaskGroup label="Snart" status="warn" tasks={soonTasks} />
       )}
-
-      {/* Later tasks */}
       {laterTasks.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="h-5 w-5 text-blue-600" />
-              Til info ({laterTasks.length})
-            </CardTitle>
-            <CardDescription>Oppgaver som kan vente</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {laterTasks.map((task, i) => (
-                <TaskCard key={`later-${i}`} task={task} />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+        <TaskGroup label="Planlegg" status="ok" tasks={laterTasks} />
       )}
 
       {/* No tasks */}
       {generatedTasks.length === 0 && (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold">Alt i orden!</h3>
-              <p className="text-gray-500">
-                Du har ingen oppgaver som krever handling akkurat nå.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-scan-surface border border-scan-border rounded-xl p-12 text-center">
+          <CheckCircle className="w-10 h-10 text-status-ok mx-auto mb-3" />
+          <h3 className="text-base font-medium text-scan-text">Alt i orden!</h3>
+          <p className="text-sm text-scan-text3 mt-1">
+            Ingen oppgaver som krever handling akkurat nå.
+          </p>
+        </div>
       )}
     </div>
   )
 }
 
-function TaskCard({ task }: { task: GeneratedTask }) {
-  const config = PRIORITY_CONFIG[task.priority]
-  const Icon = config.icon
-
+function TaskGroup({
+  label,
+  status,
+  tasks,
+}: {
+  label: string
+  status: "ok" | "warn" | "crit"
+  tasks: GeneratedTask[]
+}) {
   return (
-    <div className={`p-4 rounded-lg border ${config.bg}`}>
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-3">
-          <Icon className={`h-5 w-5 mt-0.5 ${config.color}`} />
-          <div>
-            <h4 className="font-medium">{task.title}</h4>
-            <p className="text-sm text-gray-600 mt-1">{task.description}</p>
-            {task.dueDate && (
-              <p className="text-xs text-gray-500 mt-2">
-                Frist:{" "}
-                {new Date(task.dueDate).toLocaleDateString("nb-NO")}
-              </p>
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <StatusDot status={status} size="md" />
+        <h2 className="text-sm font-medium text-scan-text2 uppercase tracking-wider">
+          {label} ({tasks.length})
+        </h2>
+      </div>
+      <div className="bg-scan-surface border border-scan-border rounded-xl divide-y divide-scan-border">
+        {tasks.map((task, i) => (
+          <div key={i} className="flex items-start gap-3 px-4 py-3">
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-scan-text">{task.title}</div>
+              <div className="text-sm text-scan-text2 mt-0.5">{task.description}</div>
+              {task.dueDate && (
+                <div className="font-mono text-xs text-scan-text3 mt-1">
+                  Frist: {new Date(task.dueDate).toLocaleDateString("nb-NO")}
+                </div>
+              )}
+            </div>
+            {task.studentId && task.classGroupId && (
+              <Link href={`/faggrupper/${task.classGroupId}`}>
+                <Button variant="outline" size="sm" className="border-scan-border text-scan-text2 flex-shrink-0">
+                  <Users className="h-3.5 w-3.5 mr-1" />
+                  Se elev
+                </Button>
+              </Link>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Removed "Åpne" button — only "Se elev" remains */}
-          {task.studentId && task.classGroupId && (
-            <Link
-              href={`/faggrupper/${task.classGroupId}/elev/${task.studentId}`}
-            >
-              <Button variant="outline" size="sm">
-                <Users className="h-4 w-4 mr-1" />
-                Se elev
-              </Button>
-            </Link>
-          )}
-        </div>
+        ))}
       </div>
     </div>
   )
