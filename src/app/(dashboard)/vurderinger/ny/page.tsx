@@ -66,7 +66,10 @@ export default function RegistrerVurderingPage() {
     async function fetchGoals() {
       try {
         const response = await fetch(`/api/competence-goals?subject=${encodeURIComponent(group!.subject)}&grade=${group!.grade}`)
-        if (response.ok) setCompetenceGoals(await response.json())
+        if (response.ok) {
+          const data = await response.json()
+          setCompetenceGoals(data.goals || data || [])
+        }
       } catch (error) { console.error("Failed to fetch competence goals:", error) }
     }
     fetchGoals()
