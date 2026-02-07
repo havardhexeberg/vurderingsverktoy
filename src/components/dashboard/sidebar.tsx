@@ -24,8 +24,8 @@ import {
 import { useState } from "react"
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Ny vurdering", href: "/vurderinger/ny", icon: PlusCircle, highlight: true },
+  { name: "Forside", href: "/dashboard", icon: LayoutDashboard },
+  { name: "Ny vurdering", href: "/vurderinger/ny", icon: PlusCircle },
   { name: "Mine faggrupper", href: "/faggrupper", icon: BookOpen },
   { name: "Mine elever", href: "/mine-elever", icon: Users },
   { name: "Kompetansemål", href: "/kompetansemaal", icon: Grid3X3 },
@@ -54,7 +54,7 @@ export function Sidebar() {
       <div className="flex h-16 items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
           <BookOpen className="h-6 w-6 text-teal-600" />
-          <span className="text-lg font-semibold">Vurdering</span>
+          <span className="text-lg font-semibold">Lærer</span>
         </Link>
         <Button
           variant="ghost"
@@ -65,13 +65,11 @@ export function Sidebar() {
           <X className="h-5 w-5" />
         </Button>
       </div>
-
       <Separator />
-
       <nav className="flex-1 space-y-1 px-2 py-4">
         {navigation.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
-          const isHighlight = 'highlight' in item && item.highlight
+          const isActive =
+            pathname === item.href || pathname.startsWith(item.href + "/")
           return (
             <Link
               key={item.name}
@@ -79,9 +77,7 @@ export function Sidebar() {
               onClick={() => setMobileMenuOpen(false)}
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isHighlight && !isActive
-                  ? "bg-teal-600 text-white hover:bg-teal-700"
-                  : isActive
+                isActive
                   ? "bg-teal-50 text-teal-700"
                   : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               )}
@@ -92,9 +88,7 @@ export function Sidebar() {
           )
         })}
       </nav>
-
       <Separator />
-
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
@@ -135,7 +129,7 @@ export function Sidebar() {
         >
           <Menu className="h-5 w-5" />
         </Button>
-        <span className="text-lg font-semibold">Vurdering</span>
+        <span className="text-lg font-semibold">Lærer</span>
       </div>
 
       {/* Mobile menu overlay */}

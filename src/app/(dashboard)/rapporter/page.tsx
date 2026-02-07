@@ -19,14 +19,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Progress } from "@/components/ui/progress"
 import {
   FileText,
   Download,
   BarChart3,
   Users,
   BookOpen,
-  TrendingUp,
   RefreshCw,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -59,18 +57,6 @@ interface ReportData {
     oralCount: number
     averageGrade: number | null
     status: string
-  }>
-  gradeDistribution?: Record<string, number>
-  statistics?: {
-    totalGrades: number
-    average: number | null
-    median: number | null
-    standardDeviation: number | null
-  }
-  studentAverages?: Array<{
-    name: string
-    average: number | null
-    count: number
   }>
   classGroups?: Array<{
     name: string
@@ -110,7 +96,6 @@ export default function RapporterPage() {
       toast.error("Velg en rapporttype")
       return
     }
-
     if (reportType !== "teacher-overview" && !selectedClassGroup) {
       toast.error("Velg en faggruppe")
       return
@@ -131,14 +116,19 @@ export default function RapporterPage() {
         throw new Error("Kunne ikke generere rapport")
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Feil ved generering")
+      toast.error(
+        error instanceof Error ? error.message : "Feil ved generering"
+      )
     } finally {
       setIsLoading(false)
     }
   }
 
   const downloadCSV = async () => {
-    if (!reportType || (!selectedClassGroup && reportType !== "teacher-overview")) {
+    if (
+      !reportType ||
+      (!selectedClassGroup && reportType !== "teacher-overview")
+    ) {
       return
     }
 
@@ -177,16 +167,23 @@ export default function RapporterPage() {
                   <SelectValue placeholder="Velg type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="class-overview">Klasseoversikt</SelectItem>
-                  <SelectItem value="grade-summary">Karaktersammendrag</SelectItem>
-                  <SelectItem value="teacher-overview">Min oversikt</SelectItem>
+                  <SelectItem value="class-overview">
+                    Klasseoversikt
+                  </SelectItem>
+                  <SelectItem value="teacher-overview">
+                    Min oversikt
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
             {reportType !== "teacher-overview" && (
               <div className="space-y-2">
                 <label className="text-sm font-medium">Faggruppe</label>
-                <Select value={selectedClassGroup} onValueChange={setSelectedClassGroup}>
+                <Select
+                  value={selectedClassGroup}
+                  onValueChange={setSelectedClassGroup}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Velg faggruppe" />
                   </SelectTrigger>
@@ -200,6 +197,7 @@ export default function RapporterPage() {
                 </Select>
               </div>
             )}
+
             <div className="flex items-end gap-2">
               <Button onClick={generateReport} disabled={isLoading}>
                 {isLoading ? (
@@ -223,14 +221,16 @@ export default function RapporterPage() {
       {/* Report display */}
       {reportData && (
         <>
-          {/* Class Overview Report */}
+          {/* Class Overview Report — WITHOUT "Snitt" column */}
           {reportType === "class-overview" && reportData.students && (
             <Card>
               <CardHeader>
                 <CardTitle>{reportData.title}</CardTitle>
                 <CardDescription>
-                  {reportData.classGroup?.subject} - {reportData.classGroup?.grade}. trinn
-                  {reportData.classGroup?.teacher && ` | Lærer: ${reportData.classGroup.teacher}`}
+                  {reportData.classGroup?.subject} -{" "}
+                  {reportData.classGroup?.grade}. trinn
+                  {reportData.classGroup?.teacher &&
+                    ` | Lærer: ${reportData.classGroup.teacher}`}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -238,7 +238,9 @@ export default function RapporterPage() {
                 <div className="grid gap-4 sm:grid-cols-4 mb-6">
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div className="text-sm text-gray-600">Totalt</div>
-                    <div className="text-2xl font-bold">{reportData.summary?.totalStudents}</div>
+                    <div className="text-2xl font-bold">
+                      {reportData.summary?.totalStudents}
+                    </div>
                   </div>
                   <div className="bg-green-50 p-4 rounded-lg">
                     <div className="text-sm text-green-600">Klar</div>
@@ -260,7 +262,7 @@ export default function RapporterPage() {
                   </div>
                 </div>
 
-                {/* Student table */}
+                {/* Student table — NO "Snitt" column */}
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -268,18 +270,18 @@ export default function RapporterPage() {
                       <TableHead>Vurderinger</TableHead>
                       <TableHead>Skriftlig</TableHead>
                       <TableHead>Muntlig</TableHead>
-                      <TableHead>Snitt</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {reportData.students.map((student, i) => (
                       <TableRow key={i}>
-                        <TableCell className="font-medium">{student.name}</TableCell>
+                        <TableCell className="font-medium">
+                          {student.name}
+                        </TableCell>
                         <TableCell>{student.assessmentCount}</TableCell>
                         <TableCell>{student.writtenCount}</TableCell>
                         <TableCell>{student.oralCount}</TableCell>
-                        <TableCell>{student.averageGrade ?? "-"}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
@@ -305,99 +307,14 @@ export default function RapporterPage() {
             </Card>
           )}
 
-          {/* Grade Summary Report */}
-          {reportType === "grade-summary" && reportData.gradeDistribution && (
-            <Card>
-              <CardHeader>
-                <CardTitle>{reportData.title}</CardTitle>
-                <CardDescription>
-                  {reportData.classGroup?.subject} - {reportData.classGroup?.grade}. trinn
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                {/* Statistics */}
-                <div className="grid gap-4 sm:grid-cols-4 mb-6">
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <div className="text-sm text-gray-600">Totalt karakterer</div>
-                    <div className="text-2xl font-bold">{reportData.statistics?.totalGrades}</div>
-                  </div>
-                  <div className="bg-blue-50 p-4 rounded-lg">
-                    <div className="text-sm text-blue-600">Gjennomsnitt</div>
-                    <div className="text-2xl font-bold text-blue-700">
-                      {reportData.statistics?.average ?? "-"}
-                    </div>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-lg">
-                    <div className="text-sm text-purple-600">Median</div>
-                    <div className="text-2xl font-bold text-purple-700">
-                      {reportData.statistics?.median ?? "-"}
-                    </div>
-                  </div>
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <div className="text-sm text-green-600">Standardavvik</div>
-                    <div className="text-2xl font-bold text-green-700">
-                      {reportData.statistics?.standardDeviation ?? "-"}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Grade distribution */}
-                <div className="mb-6">
-                  <h3 className="font-medium mb-4">Karakterfordeling</h3>
-                  <div className="space-y-2">
-                    {[6, 5, 4, 3, 2, 1].map((grade) => {
-                      const count = reportData.gradeDistribution?.[grade] || 0
-                      const total = reportData.statistics?.totalGrades || 1
-                      const percentage = Math.round((count / total) * 100)
-                      return (
-                        <div key={grade} className="flex items-center gap-4">
-                          <div className="w-8 font-medium">{grade}</div>
-                          <Progress value={percentage} className="flex-1" />
-                          <div className="w-16 text-sm text-gray-600">
-                            {count} ({percentage}%)
-                          </div>
-                        </div>
-                      )
-                    })}
-                  </div>
-                </div>
-
-                {/* Student averages */}
-                {reportData.studentAverages && (
-                  <div>
-                    <h3 className="font-medium mb-4">Elevsnitt</h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Elev</TableHead>
-                          <TableHead>Snitt</TableHead>
-                          <TableHead>Antall</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {reportData.studentAverages.map((student, i) => (
-                          <TableRow key={i}>
-                            <TableCell>{student.name}</TableCell>
-                            <TableCell className="font-medium">
-                              {student.average ?? "-"}
-                            </TableCell>
-                            <TableCell>{student.count}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
           {/* Teacher Overview Report */}
           {reportType === "teacher-overview" && reportData.classGroups && (
             <Card>
               <CardHeader>
                 <CardTitle>{reportData.title}</CardTitle>
-                <CardDescription>Oversikt over alle dine faggrupper</CardDescription>
+                <CardDescription>
+                  Oversikt over alle dine faggrupper
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
@@ -411,7 +328,9 @@ export default function RapporterPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Users className="h-4 w-4 text-gray-500" />
-                          <span className="text-sm text-gray-600">{cg.studentCount} elever</span>
+                          <span className="text-sm text-gray-600">
+                            {cg.studentCount} elever
+                          </span>
                         </div>
                       </div>
                       <div className="flex gap-4 text-sm">

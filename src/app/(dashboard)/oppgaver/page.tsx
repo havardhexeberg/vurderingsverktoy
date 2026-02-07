@@ -4,15 +4,12 @@ import { useState, useEffect } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Checkbox } from "@/components/ui/checkbox"
 import {
   AlertTriangle,
   Clock,
   CheckCircle,
-  ChevronRight,
   RefreshCw,
   Users,
-  BookOpen,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -22,18 +19,6 @@ interface GeneratedTask {
   title: string
   description: string
   dueDate?: string
-  studentId?: string
-  classGroupId?: string
-}
-
-interface ManualTask {
-  id: string
-  type: string
-  priority: string
-  title: string
-  description: string
-  dueDate?: string
-  isDone: boolean
   studentId?: string
   classGroupId?: string
 }
@@ -71,10 +56,10 @@ const PRIORITY_CONFIG = {
 
 export default function OppgaverPage() {
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([])
-  const [manualTasks, setManualTasks] = useState<ManualTask[]>([])
   const [summary, setSummary] = useState<TaskSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [priorityFilter, setPriorityFilter] = useState<string | null>(null)
 
   useEffect(() => {
     fetchTasks()
@@ -86,7 +71,6 @@ export default function OppgaverPage() {
       if (response.ok) {
         const data = await response.json()
         setGeneratedTasks(data.generated || [])
-        setManualTasks(data.manual || [])
         setSummary(data.summary)
       }
     } catch (error) {
@@ -102,86 +86,135 @@ export default function OppgaverPage() {
     fetchTasks()
   }
 
-  const toggleTaskDone = async (taskId: string, isDone: boolean) => {
-    try {
-      await fetch(`/api/tasks/${taskId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isDone: !isDone }),
-      })
-      fetchTasks()
-    } catch (error) {
-      console.error("Error:", error)
-    }
-  }
-
   if (isLoading) {
     return <div className="flex justify-center p-8">Laster oppgaver...</div>
   }
 
-  const criticalTasks = generatedTasks.filter((t) => t.priority === "CRITICAL")
-  const soonTasks = generatedTasks.filter((t) => t.priority === "SOON")
-  const laterTasks = generatedTasks.filter((t) => t.priority === "LATER")
+  // Apply filter
+  const filteredTasks = priorityFilter
+    ? generatedTasks.filter((t) => t.priority === priorityFilter)
+    : generatedTasks
+
+  const criticalTasks = filteredTasks.filter((t) => t.priority === "CRITICAL")
+  const soonTasks = filteredTasks.filter((t) => t.priority === "SOON")
+  const laterTasks = filteredTasks.filter((t) => t.priority === "LATER")
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Mine oppgaver</h1>
-          <p className="text-gray-600">Automatisk genererte påminnelser og oppgaver</p>
+          <p className="text-gray-600">
+            Automatisk genererte påminnelser og oppgaver
+          </p>
         </div>
-        <Button variant="outline" onClick={handleRefresh} disabled={isRefreshing}>
-          <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`} />
+        <Button
+          variant="outline"
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+        >
+          <RefreshCw
+            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+          />
           Oppdater
         </Button>
       </div>
 
-      {/* Summary cards */}
+      {/* Summary cards — compact, clickable as filters */}
       {summary && (
         <div className="grid gap-4 sm:grid-cols-4">
-          <Card className="border-l-4 border-l-red-500">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                Kritisk
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{summary.critical}</div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-amber-500">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-amber-600" />
-                Snart
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-amber-600">{summary.soon}</div>
-            </CardContent>
-          </Card>
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-blue-600" />
-                Senere
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{summary.later}</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm text-gray-600">Totalt</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {summary.critical + summary.soon + summary.later}
+          <Card
+            className={`border-l-4 border-l-red-500 cursor-pointer transition-all hover:shadow-md ${
+              priorityFilter === "CRITICAL" ? "ring-2 ring-red-500" : ""
+            }`}
+            onClick={() =>
+              setPriorityFilter(
+                priorityFilter === "CRITICAL" ? null : "CRITICAL"
+              )
+            }
+          >
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 flex items-center gap-1">
+                  <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                  Kritisk
+                </span>
+                <span className="text-xl font-bold text-red-600">
+                  {summary.critical}
+                </span>
               </div>
             </CardContent>
           </Card>
+          <Card
+            className={`border-l-4 border-l-amber-500 cursor-pointer transition-all hover:shadow-md ${
+              priorityFilter === "SOON" ? "ring-2 ring-amber-500" : ""
+            }`}
+            onClick={() =>
+              setPriorityFilter(priorityFilter === "SOON" ? null : "SOON")
+            }
+          >
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 flex items-center gap-1">
+                  <Clock className="h-3.5 w-3.5 text-amber-600" />
+                  Snart
+                </span>
+                <span className="text-xl font-bold text-amber-600">
+                  {summary.soon}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card
+            className={`border-l-4 border-l-blue-500 cursor-pointer transition-all hover:shadow-md ${
+              priorityFilter === "LATER" ? "ring-2 ring-blue-500" : ""
+            }`}
+            onClick={() =>
+              setPriorityFilter(priorityFilter === "LATER" ? null : "LATER")
+            }
+          >
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600 flex items-center gap-1">
+                  <CheckCircle className="h-3.5 w-3.5 text-blue-600" />
+                  Senere
+                </span>
+                <span className="text-xl font-bold text-blue-600">
+                  {summary.later}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="py-3 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Totalt</span>
+                <span className="text-xl font-bold">
+                  {summary.critical + summary.soon + summary.later}
+                </span>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {priorityFilter && (
+        <div className="flex items-center gap-2">
+          <Badge variant="outline">
+            Filtrert:{" "}
+            {priorityFilter === "CRITICAL"
+              ? "Kritisk"
+              : priorityFilter === "SOON"
+              ? "Snart"
+              : "Senere"}
+          </Badge>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setPriorityFilter(null)}
+          >
+            Vis alle
+          </Button>
         </div>
       )}
 
@@ -281,22 +314,18 @@ function TaskCard({ task }: { task: GeneratedTask }) {
             <p className="text-sm text-gray-600 mt-1">{task.description}</p>
             {task.dueDate && (
               <p className="text-xs text-gray-500 mt-2">
-                Frist: {new Date(task.dueDate).toLocaleDateString("nb-NO")}
+                Frist:{" "}
+                {new Date(task.dueDate).toLocaleDateString("nb-NO")}
               </p>
             )}
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {task.classGroupId && (
-            <Link href={`/faggrupper/${task.classGroupId}`}>
-              <Button variant="outline" size="sm">
-                <BookOpen className="h-4 w-4 mr-1" />
-                Åpne
-              </Button>
-            </Link>
-          )}
+          {/* Removed "Åpne" button — only "Se elev" remains */}
           {task.studentId && task.classGroupId && (
-            <Link href={`/faggrupper/${task.classGroupId}/elev/${task.studentId}`}>
+            <Link
+              href={`/faggrupper/${task.classGroupId}/elev/${task.studentId}`}
+            >
               <Button variant="outline" size="sm">
                 <Users className="h-4 w-4 mr-1" />
                 Se elev

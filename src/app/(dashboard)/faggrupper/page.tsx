@@ -1,32 +1,11 @@
 "use client"
 
 import { useState, useEffect, useMemo } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Plus,
   Users,
   BookOpen,
-  ClipboardCheck,
   ChevronRight,
   Calculator,
   Languages,
@@ -42,7 +21,6 @@ import {
   TrendingUp,
   AlertCircle
 } from "lucide-react"
-import { toast } from "sonner"
 import Link from "next/link"
 
 interface Student {
@@ -82,16 +60,7 @@ const getSubjectConfig = (subject: string) => {
 
 export default function FaggrupperPage() {
   const [classGroups, setClassGroups] = useState<ClassGroup[]>([])
-  const [students, setStudents] = useState<Student[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isOpen, setIsOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-
-  // Form state
-  const [name, setName] = useState("")
-  const [subject, setSubject] = useState("")
-  const [grade, setGrade] = useState("")
-  const [selectedStudents, setSelectedStudents] = useState<string[]>([])
 
   useEffect(() => {
     fetchData()
@@ -99,19 +68,11 @@ export default function FaggrupperPage() {
 
   const fetchData = async () => {
     try {
-      const [groupsRes, studentsRes] = await Promise.all([
-        fetch("/api/class-groups"),
-        fetch("/api/students"),
-      ])
+      const groupsRes = await fetch("/api/class-groups")
 
       if (groupsRes.ok) {
         const groups = await groupsRes.json()
         setClassGroups(groups)
-      }
-
-      if (studentsRes.ok) {
-        const studentData = await studentsRes.json()
-        setStudents(studentData)
       }
     } catch (error) {
       console.error("Error fetching data:", error)
@@ -141,66 +102,8 @@ export default function FaggrupperPage() {
     const totalStudents = new Set(
       classGroups.flatMap((g) => g.students.map((s) => s.student.id))
     ).size
-    const totalAssessments = classGroups.reduce(
-      (sum, g) => sum + g._count.assessments,
-      0
-    )
-    return { totalStudents, totalAssessments }
+    return { totalStudents }
   }, [classGroups])
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch("/api/class-groups", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          subject,
-          grade: parseInt(grade),
-          schoolYear: "2025/2026",
-          studentIds: selectedStudents,
-        }),
-      })
-
-      if (!response.ok) {
-        throw new Error("Kunne ikke opprette faggruppe")
-      }
-
-      toast.success("Faggruppe opprettet!")
-      setIsOpen(false)
-      setName("")
-      setSubject("")
-      setGrade("")
-      setSelectedStudents([])
-      fetchData()
-    } catch (error) {
-      toast.error("Kunne ikke opprette faggruppe")
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const toggleStudent = (studentId: string) => {
-    setSelectedStudents((prev) =>
-      prev.includes(studentId)
-        ? prev.filter((id) => id !== studentId)
-        : [...prev, studentId]
-    )
-  }
-
-  const selectAllStudentsForGrade = () => {
-    if (!grade) return
-    const gradeNum = parseInt(grade)
-    const gradeStudents = students.filter((s) => s.grade === gradeNum)
-    setSelectedStudents(gradeStudents.map((s) => s.id))
-  }
-
-  const filteredStudents = grade
-    ? students.filter((s) => s.grade === parseInt(grade))
-    : students
 
   if (isLoading) {
     return (
@@ -213,168 +116,25 @@ export default function FaggrupperPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Mine faggrupper</h1>
-          <p className="text-gray-600 mt-1">
-            Organisert etter fag
-          </p>
-        </div>
-        <Dialog open={isOpen} onOpenChange={setIsOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-teal-600 hover:bg-teal-700">
-              <Plus className="h-4 w-4 mr-2" />
-              Ny faggruppe
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Opprett ny faggruppe</DialogTitle>
-              <DialogDescription>
-                Fyll ut informasjon og velg elever
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Navn</Label>
-                  <Input
-                    id="name"
-                    placeholder="f.eks. Matematikk 10A"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Fag</Label>
-                  <Select value={subject} onValueChange={setSubject} required>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Velg fag" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Object.keys(subjectConfig).map((subj) => (
-                        <SelectItem key={subj} value={subj}>
-                          {subj}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="grade">Trinn</Label>
-                <Select value={grade} onValueChange={setGrade} required>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Velg trinn" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="8">8. trinn</SelectItem>
-                    <SelectItem value="9">9. trinn</SelectItem>
-                    <SelectItem value="10">10. trinn</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {grade && (
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label>Velg elever ({selectedStudents.length} valgt)</Label>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={selectAllStudentsForGrade}
-                    >
-                      Velg alle
-                    </Button>
-                  </div>
-                  <div className="border rounded-lg p-3 max-h-48 overflow-y-auto space-y-2">
-                    {filteredStudents.length === 0 ? (
-                      <p className="text-sm text-gray-500">
-                        Ingen elever på dette trinnet. Importer elever først.
-                      </p>
-                    ) : (
-                      filteredStudents.map((student) => (
-                        <div
-                          key={student.id}
-                          className="flex items-center space-x-2"
-                        >
-                          <Checkbox
-                            id={student.id}
-                            checked={selectedStudents.includes(student.id)}
-                            onCheckedChange={() => toggleStudent(student.id)}
-                          />
-                          <label
-                            htmlFor={student.id}
-                            className="text-sm cursor-pointer"
-                          >
-                            {student.name}
-                          </label>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-
-              <div className="flex justify-end gap-3 pt-4">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setIsOpen(false)}
-                >
-                  Avbryt
-                </Button>
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="bg-teal-600 hover:bg-teal-700"
-                >
-                  {isSubmitting ? "Oppretter..." : "Opprett faggruppe"}
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
-        </Dialog>
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">Mine faggrupper</h1>
+        <p className="text-gray-600 mt-1">
+          Organisert etter fag
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white border-0">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-teal-100">Faggrupper</p>
-                <p className="text-3xl font-bold">{classGroups.length}</p>
-              </div>
-              <BookOpen className="w-10 h-10 text-teal-200" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Unike elever</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalStudents}</p>
-              </div>
-              <Users className="w-10 h-10 text-gray-300" />
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Vurderinger</p>
-                <p className="text-3xl font-bold text-gray-900">{stats.totalAssessments}</p>
-              </div>
-              <ClipboardCheck className="w-10 h-10 text-gray-300" />
-            </div>
-          </CardContent>
-        </Card>
+      {/* Stats Cards - Compact inline */}
+      <div className="flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-2">
+          <BookOpen className="w-5 h-5 text-teal-600" />
+          <span className="font-medium">{classGroups.length}</span>
+          <span className="text-gray-500">faggrupper</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Users className="w-5 h-5 text-gray-400" />
+          <span className="font-medium">{stats.totalStudents}</span>
+          <span className="text-gray-500">unike elever</span>
+        </div>
       </div>
 
       {/* Empty State */}
@@ -384,9 +144,7 @@ export default function FaggrupperPage() {
             <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">Ingen faggrupper</h3>
             <p className="text-gray-500 mb-4">
-              {students.length === 0
-                ? "Importer elever først, deretter opprett en faggruppe"
-                : `${students.length} elever tilgjengelig. Klikk "Ny faggruppe" for å starte.`}
+              Importer elever og opprett faggrupper via administrasjon
             </p>
           </CardContent>
         </Card>
@@ -397,7 +155,6 @@ export default function FaggrupperPage() {
             const config = getSubjectConfig(subject)
             const Icon = config.icon
             const totalStudents = groups.reduce((sum, g) => sum + g.students.length, 0)
-            const totalAssessments = groups.reduce((sum, g) => sum + g._count.assessments, 0)
 
             return (
               <div key={subject} className="space-y-3">
@@ -409,7 +166,7 @@ export default function FaggrupperPage() {
                   <div className="flex-1">
                     <h2 className="font-semibold text-gray-900">{subject}</h2>
                     <p className="text-sm text-gray-600">
-                      {groups.length} {groups.length === 1 ? "gruppe" : "grupper"} · {totalStudents} elever · {totalAssessments} vurderinger
+                      {groups.length} {groups.length === 1 ? "gruppe" : "grupper"} · {totalStudents} elever
                     </p>
                   </div>
                 </div>
@@ -434,11 +191,7 @@ export default function FaggrupperPage() {
                           <div className="flex items-center gap-4 text-sm text-gray-500">
                             <div className="flex items-center gap-1">
                               <Users className="w-4 h-4" />
-                              <span>{group.students.length}</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <ClipboardCheck className="w-4 h-4" />
-                              <span>{group._count.assessments}</span>
+                              <span>{group.students.length} elever</span>
                             </div>
                             {group._count.assessments > 0 && (
                               <div className="flex items-center gap-1 text-green-600">

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,8 +21,14 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Progress } from "@/components/ui/progress"
-import { Search, TrendingUp, AlertTriangle, CheckCircle, Clock, ChevronRight } from "lucide-react"
-import Link from "next/link"
+import {
+  Search,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  ArrowUpDown,
+} from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface ClassGroup {
   id: string
@@ -47,18 +53,44 @@ interface StudentWithStatus {
 }
 
 const STATUS_CONFIG = {
-  OK: { label: "Klar", icon: CheckCircle, color: "text-green-600", bg: "bg-green-100" },
-  WARNING: { label: "Nesten klar", icon: Clock, color: "text-amber-600", bg: "bg-amber-100" },
-  CRITICAL: { label: "Trenger arbeid", icon: AlertTriangle, color: "text-red-600", bg: "bg-red-100" },
+  OK: {
+    label: "Klar",
+    icon: CheckCircle,
+    color: "text-green-600",
+    bg: "bg-green-100",
+  },
+  WARNING: {
+    label: "Nesten klar",
+    icon: Clock,
+    color: "text-amber-600",
+    bg: "bg-amber-100",
+  },
+  CRITICAL: {
+    label: "Trenger arbeid",
+    icon: AlertTriangle,
+    color: "text-red-600",
+    bg: "bg-red-100",
+  },
 }
 
+type SortField =
+  | "name"
+  | "classGroups"
+  | "status"
+  | "assessments"
+  | "coverage"
+type SortDirection = "asc" | "desc"
+
 export default function MineEleverPage() {
+  const router = useRouter()
   const [students, setStudents] = useState<StudentWithStatus[]>([])
   const [classGroups, setClassGroups] = useState<ClassGroup[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [classGroupFilter, setClassGroupFilter] = useState<string>("all")
+  const [sortField, setSortField] = useState<SortField>("name")
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc")
 
   useEffect(() => {
     fetchData()
@@ -79,13 +111,69 @@ export default function MineEleverPage() {
     }
   }
 
-  const filteredStudents = students.filter((s) => {
-    const matchesSearch = s.student.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesStatus = statusFilter === "all" || s.status.status === statusFilter
-    const matchesClassGroup =
-      classGroupFilter === "all" || s.classGroups.some((cg) => cg.id === classGroupFilter)
-    return matchesSearch && matchesStatus && matchesClassGroup
-  })
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc")
+    } else {
+      setSortField(field)
+      setSortDirection("asc")
+    }
+  }
+
+  const statusOrder = { CRITICAL: 0, WARNING: 1, OK: 2 }
+
+  const filteredAndSortedStudents = useMemo(() => {
+    let result = students.filter((s) => {
+      const matchesSearch = s.student.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
+      const matchesStatus =
+        statusFilter === "all" || s.status.status === statusFilter
+      const matchesClassGroup =
+        classGroupFilter === "all" ||
+        s.classGroups.some((cg) => cg.id === classGroupFilter)
+      return matchesSearch && matchesStatus && matchesClassGroup
+    })
+
+    result.sort((a, b) => {
+      const dir = sortDirection === "asc" ? 1 : -1
+      switch (sortField) {
+        case "name":
+          return dir * a.student.name.localeCompare(b.student.name, "nb")
+        case "classGroups":
+          return (
+            dir *
+            (a.classGroups.length - b.classGroups.length)
+          )
+        case "status":
+          return (
+            dir *
+            (statusOrder[a.status.status] - statusOrder[b.status.status])
+          )
+        case "assessments":
+          return (
+            dir *
+            (a.status.assessmentCount - b.status.assessmentCount)
+          )
+        case "coverage":
+          return (
+            dir *
+            (a.status.competenceCoverage - b.status.competenceCoverage)
+          )
+        default:
+          return 0
+      }
+    })
+
+    return result
+  }, [
+    students,
+    searchQuery,
+    statusFilter,
+    classGroupFilter,
+    sortField,
+    sortDirection,
+  ])
 
   const statusSummary = {
     total: students.length,
@@ -94,58 +182,97 @@ export default function MineEleverPage() {
     critical: students.filter((s) => s.status.status === "CRITICAL").length,
   }
 
+  const navigateToStudent = (item: StudentWithStatus) => {
+    const primaryClassGroup = item.classGroups[0]
+    if (primaryClassGroup) {
+      router.push(
+        `/faggrupper/${primaryClassGroup.id}/elev/${item.student.id}`
+      )
+    }
+  }
+
   if (isLoading) {
     return <div className="flex justify-center p-8">Laster elever...</div>
   }
+
+  const SortableHeader = ({
+    field,
+    children,
+  }: {
+    field: SortField
+    children: React.ReactNode
+  }) => (
+    <TableHead
+      className="cursor-pointer hover:text-gray-900 select-none"
+      onClick={() => handleSort(field)}
+    >
+      <div className="flex items-center gap-1">
+        {children}
+        <ArrowUpDown
+          className={`h-3 w-3 ${
+            sortField === field ? "text-teal-600" : "text-gray-400"
+          }`}
+        />
+      </div>
+    </TableHead>
+  )
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Mine elever</h1>
-        <p className="text-gray-600">Oversikt over alle elever i dine faggrupper</p>
+        <p className="text-gray-600">
+          Oversikt over alle elever i dine faggrupper
+        </p>
       </div>
 
-      {/* Status summary cards */}
+      {/* Status summary cards — compact height */}
       <div className="grid gap-4 sm:grid-cols-4">
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Totalt</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{statusSummary.total}</div>
+          <CardContent className="py-3 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600">Totalt</span>
+              <span className="text-xl font-bold">{statusSummary.total}</span>
+            </div>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-green-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <CheckCircle className="h-4 w-4 text-green-600" />
-              Klar
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{statusSummary.ok}</div>
+          <CardContent className="py-3 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 flex items-center gap-1">
+                <CheckCircle className="h-3.5 w-3.5 text-green-600" />
+                Klar
+              </span>
+              <span className="text-xl font-bold text-green-600">
+                {statusSummary.ok}
+              </span>
+            </div>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-amber-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-              Nesten klar
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-amber-600">{statusSummary.warning}</div>
+          <CardContent className="py-3 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 flex items-center gap-1">
+                <Clock className="h-3.5 w-3.5 text-amber-600" />
+                Nesten klar
+              </span>
+              <span className="text-xl font-bold text-amber-600">
+                {statusSummary.warning}
+              </span>
+            </div>
           </CardContent>
         </Card>
         <Card className="border-l-4 border-l-red-500">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-red-600" />
-              Trenger arbeid
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-red-600">{statusSummary.critical}</div>
+          <CardContent className="py-3 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-gray-600 flex items-center gap-1">
+                <AlertTriangle className="h-3.5 w-3.5 text-red-600" />
+                Trenger arbeid
+              </span>
+              <span className="text-xl font-bold text-red-600">
+                {statusSummary.critical}
+              </span>
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -177,7 +304,10 @@ export default function MineEleverPage() {
                 <SelectItem value="OK">Klar</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={classGroupFilter} onValueChange={setClassGroupFilter}>
+            <Select
+              value={classGroupFilter}
+              onValueChange={setClassGroupFilter}
+            >
               <SelectTrigger className="w-[200px]">
                 <SelectValue placeholder="Faggruppe" />
               </SelectTrigger>
@@ -194,37 +324,46 @@ export default function MineEleverPage() {
         </CardContent>
       </Card>
 
-      {/* Student list */}
+      {/* Student list — Whole row clickable, sortable columns */}
       <Card>
         <CardHeader>
-          <CardTitle>Elever ({filteredStudents.length})</CardTitle>
+          <CardTitle>Elever ({filteredAndSortedStudents.length})</CardTitle>
           <CardDescription>
             Klikk på en elev for å se kompetanseutvikling
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {filteredStudents.length === 0 ? (
-            <p className="text-center py-8 text-gray-500">Ingen elever funnet</p>
+          {filteredAndSortedStudents.length === 0 ? (
+            <p className="text-center py-8 text-gray-500">
+              Ingen elever funnet
+            </p>
           ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Elev</TableHead>
-                  <TableHead>Faggrupper</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Vurderinger</TableHead>
-                  <TableHead>Kompetansedekning</TableHead>
-                  <TableHead></TableHead>
+                  <SortableHeader field="name">Elev</SortableHeader>
+                  <SortableHeader field="classGroups">
+                    Faggrupper
+                  </SortableHeader>
+                  <SortableHeader field="status">Status</SortableHeader>
+                  <SortableHeader field="assessments">
+                    Vurderinger
+                  </SortableHeader>
+                  <SortableHeader field="coverage">
+                    Kompetansedekning
+                  </SortableHeader>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredStudents.map((item) => {
+                {filteredAndSortedStudents.map((item) => {
                   const statusConfig = STATUS_CONFIG[item.status.status]
                   const StatusIcon = statusConfig.icon
-                  const primaryClassGroup = item.classGroups[0]
-
                   return (
-                    <TableRow key={item.student.id}>
+                    <TableRow
+                      key={item.student.id}
+                      className="cursor-pointer hover:bg-teal-50 transition-colors"
+                      onClick={() => navigateToStudent(item)}
+                    >
                       <TableCell>
                         <div>
                           <div className="font-medium">{item.student.name}</div>
@@ -236,7 +375,11 @@ export default function MineEleverPage() {
                       <TableCell>
                         <div className="flex flex-wrap gap-1">
                           {item.classGroups.map((cg) => (
-                            <Badge key={cg.id} variant="outline" className="text-xs">
+                            <Badge
+                              key={cg.id}
+                              variant="outline"
+                              className="text-xs"
+                            >
                               {cg.subject}
                             </Badge>
                           ))}
@@ -244,7 +387,9 @@ export default function MineEleverPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
+                          <StatusIcon
+                            className={`h-4 w-4 ${statusConfig.color}`}
+                          />
                           <Badge
                             variant={
                               item.status.status === "OK"
@@ -260,9 +405,12 @@ export default function MineEleverPage() {
                       </TableCell>
                       <TableCell>
                         <div className="text-sm">
-                          <span className="font-medium">{item.status.assessmentCount}</span>
+                          <span className="font-medium">
+                            {item.status.assessmentCount}
+                          </span>
                           <span className="text-gray-500 ml-1">
-                            ({item.status.writtenCount}S / {item.status.oralCount}M)
+                            ({item.status.writtenCount}S /{" "}
+                            {item.status.oralCount}M)
                           </span>
                         </div>
                       </TableCell>
@@ -276,19 +424,6 @@ export default function MineEleverPage() {
                             {item.status.competenceCoverage}%
                           </span>
                         </div>
-                      </TableCell>
-                      <TableCell>
-                        {primaryClassGroup && (
-                          <Link
-                            href={`/faggrupper/${primaryClassGroup.id}/elev/${item.student.id}`}
-                          >
-                            <Button variant="ghost" size="sm">
-                              <TrendingUp className="h-4 w-4 mr-1" />
-                              Se utvikling
-                              <ChevronRight className="h-4 w-4 ml-1" />
-                            </Button>
-                          </Link>
-                        )}
                       </TableCell>
                     </TableRow>
                   )

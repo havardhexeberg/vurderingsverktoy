@@ -7,10 +7,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
-  BookOpen,
-  Users,
-  ClipboardCheck,
-  AlertTriangle,
   Check,
   Plus,
   Clock,
@@ -19,6 +15,7 @@ import {
   ChevronRight,
   AlertCircle,
   Loader2,
+  AlertTriangle,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -41,6 +38,8 @@ interface UrgentAction {
 }
 
 interface CoverageData {
+  classGroupId: string
+  classGroupName: string
   subject: string
   coverage: number
   total: number
@@ -65,7 +64,9 @@ export default function DashboardPage() {
   if (today > termEnd) {
     termEnd.setFullYear(termEnd.getFullYear() + 1)
   }
-  const daysUntilTermEnd = Math.ceil((termEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+  const daysUntilTermEnd = Math.ceil(
+    (termEnd.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)
+  )
 
   useEffect(() => {
     fetchData()
@@ -90,7 +91,8 @@ export default function DashboardPage() {
               type: "missing_assessment",
               priority: "critical",
               title: `${data.warnings} elever mangler vurdering`,
-              description: "Disse elevene har ikke blitt vurdert denne terminen",
+              description:
+                "Disse elevene har ikke blitt vurdert denne terminen",
             },
           ])
         }
@@ -98,26 +100,26 @@ export default function DashboardPage() {
 
       if (classGroupsRes.ok) {
         const groups = await classGroupsRes.json()
-        // Calculate coverage per subject
-        const subjectCoverage: Record<string, { total: number; assessed: number }> = {}
 
-        groups.forEach((group: any) => {
-          if (!subjectCoverage[group.subject]) {
-            subjectCoverage[group.subject] = { total: 0, assessed: 0 }
-          }
-          subjectCoverage[group.subject].total += group.students.length
-          subjectCoverage[group.subject].assessed += Math.min(
+        // Calculate coverage per class group (not per subject)
+        const coverage = groups.map((group: any) => {
+          const totalStudents = group.students.length
+          const assessedStudents = Math.min(
             group._count.assessments,
-            group.students.length
+            totalStudents
           )
+          return {
+            classGroupId: group.id,
+            classGroupName: group.name,
+            subject: group.subject,
+            coverage:
+              totalStudents > 0
+                ? Math.round((assessedStudents / totalStudents) * 100)
+                : 0,
+            total: totalStudents,
+            assessed: assessedStudents,
+          }
         })
-
-        const coverage = Object.entries(subjectCoverage).map(([subject, data]) => ({
-          subject,
-          coverage: data.total > 0 ? Math.round((data.assessed / data.total) * 100) : 0,
-          total: data.total,
-          assessed: data.assessed,
-        }))
         setCoverageData(coverage)
       }
     } catch (error) {
@@ -127,34 +129,16 @@ export default function DashboardPage() {
     }
   }
 
-  const steps = [
-    {
-      num: 1,
-      title: "Importer elever",
-      desc: "Last opp en CSV-fil med elevdata",
-      href: "/import",
-      done: stats.students > 0 || stats.classGroups > 0,
-    },
-    {
-      num: 2,
-      title: "Opprett faggruppe",
-      desc: "Opprett en faggruppe og legg til elever",
-      href: "/faggrupper",
-      done: stats.classGroups > 0,
-    },
-    {
-      num: 3,
-      title: "Registrer vurderinger",
-      desc: "Begynn å registrere vurderinger",
-      href: "/vurderinger/ny",
-      done: stats.assessments > 0,
-    },
-  ]
-
   const getCoverageColor = (coverage: number) => {
     if (coverage >= 80) return "bg-green-500"
     if (coverage >= 50) return "bg-yellow-500"
     return "bg-red-500"
+  }
+
+  const getCoverageTextColor = (coverage: number) => {
+    if (coverage >= 80) return "text-green-600"
+    if (coverage >= 50) return "text-yellow-600"
+    return "text-red-600"
   }
 
   if (isLoading) {
@@ -167,106 +151,49 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header with Quick Action */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">
-            Velkommen, {session?.user?.name?.split(" ")[0]}!
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Her er en oversikt over dine faggrupper og oppgaver.
-          </p>
-        </div>
-        <Link href="/vurderinger/ny">
-          <Button className="bg-teal-600 hover:bg-teal-700">
-            <Plus className="w-4 h-4 mr-2" />
-            Ny vurdering
-          </Button>
-        </Link>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Velkommen, {session?.user?.name?.split(" ")[0]}!
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Her er en oversikt over dine faggrupper og oppgaver.
+        </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white border-0">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-teal-100">
-              Faggrupper
-            </CardTitle>
-            <BookOpen className="h-5 w-5 text-teal-200" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold">{stats.classGroups}</div>
-            <p className="text-sm text-teal-100">Aktive faggrupper</p>
-          </CardContent>
-        </Card>
+      {/* CTA — Ny vurdering (bred, lav, elegant) */}
+      <Link href="/vurderinger/ny" className="block">
+        <Button className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-lg font-semibold shadow-sm hover:shadow-md transition-all">
+          <Plus className="w-5 h-5 mr-2" />
+          Ny vurdering
+        </Button>
+      </Link>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Elever
-            </CardTitle>
-            <Users className="h-5 w-5 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{stats.students}</div>
-            <p className="text-sm text-gray-500">Totalt i dine grupper</p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Vurderinger
-            </CardTitle>
-            <ClipboardCheck className="h-5 w-5 text-gray-400" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-gray-900">{stats.assessments}</div>
-            <p className="text-sm text-gray-500">Registrert denne terminen</p>
-          </CardContent>
-        </Card>
-
-        <Card className={stats.warnings > 0 ? "border-amber-300 bg-amber-50" : ""}>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
-              Mangler vurdering
-            </CardTitle>
-            <AlertTriangle className={`h-5 w-5 ${stats.warnings > 0 ? "text-amber-600" : "text-gray-400"}`} />
-          </CardHeader>
-          <CardContent>
-            <div className={`text-3xl font-bold ${stats.warnings > 0 ? "text-amber-700" : "text-gray-900"}`}>
-              {stats.warnings}
-            </div>
-            <p className="text-sm text-gray-500">Elever uten vurdering</p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Main Content Grid */}
+      {/* Main Content Grid: Handlinger som haster + Terminslutt */}
       <div className="grid gap-6 lg:grid-cols-3">
-        {/* Urgent Actions - Takes 2 columns */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <AlertCircle className="w-5 h-5 text-red-500" />
-                Handlinger som haster
-              </CardTitle>
-              <CardDescription>
-                Oppgaver som bør gjøres før terminslutt
-              </CardDescription>
-            </div>
-            <Badge variant="outline" className="text-gray-500">
-              <Clock className="w-3 h-3 mr-1" />
-              {daysUntilTermEnd} dager til terminslutt
-            </Badge>
-          </CardHeader>
-          <CardContent>
-            {urgentActions.length > 0 || stats.warnings > 0 ? (
-              <div className="space-y-3">
-                {stats.warnings > 0 && (
-                  <Link href="/mine-elever">
-                    <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-red-200 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer">
+        {/* Urgent Actions — Clickable, links to Mine oppgaver */}
+        <Link href="/oppgaver" className="lg:col-span-2 block">
+          <Card className="h-full hover:shadow-md hover:border-teal-300 transition-all cursor-pointer">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5 text-red-500" />
+                  Handlinger som haster
+                </CardTitle>
+                <CardDescription>
+                  Oppgaver som bør gjøres før terminslutt
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="text-gray-500">
+                <Clock className="w-3 h-3 mr-1" />
+                {daysUntilTermEnd} dager til terminslutt
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              {urgentActions.length > 0 || stats.warnings > 0 ? (
+                <div className="space-y-3">
+                  {stats.warnings > 0 && (
+                    <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-red-200 bg-red-50">
                       <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
                         <AlertTriangle className="w-5 h-5 text-red-600" />
                       </div>
@@ -280,12 +207,10 @@ export default function DashboardPage() {
                       </div>
                       <ChevronRight className="w-5 h-5 text-red-400" />
                     </div>
-                  </Link>
-                )}
+                  )}
 
-                {coverageData.some((c) => c.coverage < 50) && (
-                  <Link href="/kompetansemaal">
-                    <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-amber-200 bg-amber-50 hover:bg-amber-100 transition-colors cursor-pointer">
+                  {coverageData.some((c) => c.coverage < 50) && (
+                    <div className="flex items-center gap-4 p-4 rounded-lg border-2 border-amber-200 bg-amber-50">
                       <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
                         <TrendingUp className="w-5 h-5 text-amber-600" />
                       </div>
@@ -299,30 +224,38 @@ export default function DashboardPage() {
                       </div>
                       <ChevronRight className="w-5 h-5 text-amber-400" />
                     </div>
-                  </Link>
-                )}
+                  )}
 
-                {stats.warnings === 0 && !coverageData.some((c) => c.coverage < 50) && (
-                  <div className="flex items-center justify-center py-8 text-gray-500">
-                    <div className="text-center">
-                      <Check className="w-12 h-12 text-green-500 mx-auto mb-2" />
-                      <p className="font-medium text-gray-900">Alt i orden!</p>
-                      <p className="text-sm">Ingen hastesaker akkurat nå</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <div className="flex items-center justify-center py-8 text-gray-500">
-                <div className="text-center">
-                  <Check className="w-12 h-12 text-green-500 mx-auto mb-2" />
-                  <p className="font-medium text-gray-900">Alt i orden!</p>
-                  <p className="text-sm">Ingen hastesaker akkurat nå</p>
+                  {stats.warnings === 0 &&
+                    !coverageData.some((c) => c.coverage < 50) && (
+                      <div className="flex items-center justify-center py-8 text-gray-500">
+                        <div className="text-center">
+                          <Check className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                          <p className="font-medium text-gray-900">
+                            Alt i orden!
+                          </p>
+                          <p className="text-sm">
+                            Ingen hastesaker akkurat nå
+                          </p>
+                        </div>
+                      </div>
+                    )}
                 </div>
+              ) : (
+                <div className="flex items-center justify-center py-8 text-gray-500">
+                  <div className="text-center">
+                    <Check className="w-12 h-12 text-green-500 mx-auto mb-2" />
+                    <p className="font-medium text-gray-900">Alt i orden!</p>
+                    <p className="text-sm">Ingen hastesaker akkurat nå</p>
+                  </div>
+                </div>
+              )}
+              <div className="mt-4 pt-3 border-t text-sm text-gray-500 flex items-center gap-1">
+                Se alle oppgaver <ChevronRight className="w-4 h-4" />
               </div>
-            )}
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Term Countdown */}
         <Card>
@@ -350,91 +283,48 @@ export default function DashboardPage() {
         </Card>
       </div>
 
-      {/* Coverage Heatmap and Getting Started */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Coverage by Subject */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-teal-600" />
-              Vurderingsdekning per fag
-            </CardTitle>
-            <CardDescription>
-              Andel elever som har fått vurdering
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {coverageData.length === 0 ? (
-              <div className="flex items-center justify-center py-8 text-gray-500">
-                <p>Ingen data ennå. Opprett faggrupper for å se dekning.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {coverageData.map((item) => (
-                  <div key={item.subject} className="space-y-2">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium text-gray-700">{item.subject}</span>
-                      <span className="text-gray-500">
-                        {item.assessed}/{item.total} ({item.coverage}%)
-                      </span>
-                    </div>
-                    <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all ${getCoverageColor(item.coverage)}`}
-                        style={{ width: `${item.coverage}%` }}
-                      />
-                    </div>
+      {/* Vurderingsdekning per gruppe — Full width */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <TrendingUp className="w-5 h-5 text-teal-600" />
+            Vurderingsdekning per gruppe
+          </CardTitle>
+          <CardDescription>
+            Andel elever som har fått vurdering i hver faggruppe
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {coverageData.length === 0 ? (
+            <div className="flex items-center justify-center py-8 text-gray-500">
+              <p>Ingen data ennå. Opprett faggrupper for å se dekning.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {coverageData.map((item) => (
+                <div key={item.classGroupId} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium text-gray-700">
+                      {item.classGroupName}
+                    </span>
+                    <span className={`font-medium ${getCoverageTextColor(item.coverage)}`}>
+                      {item.assessed}/{item.total} ({item.coverage}%)
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Getting Started */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Kom i gang</CardTitle>
-            <CardDescription>
-              Følg disse stegene for å sette opp verktøyet
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {steps.map((step) => (
-                <Link
-                  key={step.num}
-                  href={step.href}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                    step.done
-                      ? "bg-green-50 border-green-200"
-                      : "hover:bg-gray-50 border-gray-200"
-                  }`}
-                >
-                  <div
-                    className={`flex h-10 w-10 items-center justify-center rounded-full ${
-                      step.done ? "bg-green-100" : "bg-teal-100"
-                    }`}
-                  >
-                    {step.done ? (
-                      <Check className="h-5 w-5 text-green-600" />
-                    ) : (
-                      <span className="text-teal-600 font-semibold">
-                        {step.num}
-                      </span>
-                    )}
+                  <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full transition-all ${getCoverageColor(
+                        item.coverage
+                      )}`}
+                      style={{ width: `${item.coverage}%` }}
+                    />
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{step.title}</p>
-                    <p className="text-sm text-gray-500">{step.desc}</p>
-                  </div>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
-                </Link>
+                </div>
               ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   )
 }
