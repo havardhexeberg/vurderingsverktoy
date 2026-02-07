@@ -93,7 +93,7 @@ export default function KompetansemaalPage() {
   const currentClassGroup = classGroups.find((cg) => cg.id === selectedClassGroup)
 
   if (loadingClassGroups) {
-    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
+    return <div className="flex items-center justify-center min-h-[400px]"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>
   }
 
   return (
@@ -152,13 +152,13 @@ export default function KompetansemaalPage() {
         </Card>
 
         {matrixData && (
-          <Card className="bg-gradient-to-br from-teal-500 to-cyan-600 text-white border-0">
+          <Card className="bg-gradient-to-br from-brand-500 to-brand-600 text-white border-0">
             <CardContent className="py-4 px-5">
               <h3 className="text-sm font-semibold mb-3 text-white">Oppsummering</h3>
               <div className="grid grid-cols-3 gap-3">
-                <div><div className="text-2xl font-bold">{matrixData.summary.coverage}%</div><div className="text-xs text-teal-100">Dekning</div></div>
-                <div className="bg-white/20 rounded-lg p-2 text-center"><div className="text-lg font-bold">{matrixData.summary.assessed}</div><div className="text-xs text-teal-100">Vurdert</div></div>
-                <div className="bg-white/20 rounded-lg p-2 text-center"><div className="text-lg font-bold">{matrixData.summary.missing}</div><div className="text-xs text-teal-100">Mangler</div></div>
+                <div><div className="text-2xl font-bold">{matrixData.summary.coverage}%</div><div className="text-xs text-brand-100">Dekning</div></div>
+                <div className="bg-white/20 rounded-lg p-2 text-center"><div className="text-lg font-bold">{matrixData.summary.assessed}</div><div className="text-xs text-brand-100">Vurdert</div></div>
+                <div className="bg-white/20 rounded-lg p-2 text-center"><div className="text-lg font-bold">{matrixData.summary.missing}</div><div className="text-xs text-brand-100">Mangler</div></div>
               </div>
             </CardContent>
           </Card>
@@ -167,7 +167,7 @@ export default function KompetansemaalPage() {
 
       {/* Matrix Table */}
       {loading ? (
-        <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
+        <div className="flex items-center justify-center min-h-[300px]"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>
       ) : matrixData && matrixData.competenceGoals.length > 0 ? (
         <Card>
           <CardContent className="p-0">
@@ -179,7 +179,7 @@ export default function KompetansemaalPage() {
                     {matrixData.students.map((student) => (
                       <th key={student.id} className="px-2 py-3 text-center text-xs font-medium text-gray-600 min-w-[80px]">
                         <div className="flex flex-col items-center">
-                          <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-xs font-semibold mb-1">{getInitials(student.name)}</div>
+                          <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-xs font-semibold mb-1">{getInitials(student.name)}</div>
                           <div className="font-semibold text-gray-900 text-xs">{student.name.split(" ")[0]}</div>
                           <div className="text-gray-500 text-xs">{student.name.split(" ").slice(1).join(" ")}</div>
                         </div>
@@ -192,7 +192,7 @@ export default function KompetansemaalPage() {
                     <tr key={goal.id} className="hover:bg-gray-50">
                       <td className="sticky left-0 z-10 bg-white px-4 py-3 border-r border-gray-100">
                         <div className="flex items-start gap-2">
-                          <span className="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs font-semibold rounded whitespace-nowrap">{goal.code}</span>
+                          <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-xs font-semibold rounded whitespace-nowrap">{goal.code}</span>
                           <span className="text-sm text-gray-900 font-medium leading-tight line-clamp-2">{goal.description}</span>
                         </div>
                       </td>

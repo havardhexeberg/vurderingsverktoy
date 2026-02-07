@@ -123,7 +123,7 @@ export default function RegistrerVurderingPage() {
   const toggleGoal = (goalId: string) => { setSelectedGoals((prev) => prev.includes(goalId) ? prev.filter((id) => id !== goalId) : [...prev, goalId]) }
   const setAllGrades = (grade: number) => { const newGrades: Record<string, number> = {}; students.filter((s) => s.selected).forEach((s) => { newGrades[s.id] = grade }); setStudentGrades(newGrades) }
 
-  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-teal-600" /></div>
+  if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="w-8 h-8 animate-spin text-brand-600" /></div>
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -136,29 +136,29 @@ export default function RegistrerVurderingPage() {
       <div className="flex items-center gap-2">
         {[1, 2, 3].map((s) => (
           <div key={s} className="flex items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${s === step ? "bg-teal-600 text-white" : s < step ? "bg-teal-100 text-teal-700" : "bg-gray-100 text-gray-400"}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${s === step ? "bg-brand-600 text-white" : s < step ? "bg-brand-100 text-brand-700" : "bg-gray-100 text-gray-400"}`}>
               {s < step ? <Check className="w-5 h-5" /> : s}
             </div>
-            {s < 3 && <div className={`flex-1 h-1 mx-2 rounded ${s < step ? "bg-teal-600" : "bg-gray-200"}`} />}
+            {s < 3 && <div className={`flex-1 h-1 mx-2 rounded ${s < step ? "bg-brand-600" : "bg-gray-200"}`} />}
           </div>
         ))}
       </div>
       <div className="flex justify-between text-sm">
-        <span className={step >= 1 ? "text-teal-700 font-medium" : "text-gray-400"}>Velg faggruppe</span>
-        <span className={step >= 2 ? "text-teal-700 font-medium" : "text-gray-400"}>Vurderingsdetaljer</span>
-        <span className={step >= 3 ? "text-teal-700 font-medium" : "text-gray-400"}>Karakterer</span>
+        <span className={step >= 1 ? "text-brand-700 font-medium" : "text-gray-400"}>Velg faggruppe</span>
+        <span className={step >= 2 ? "text-brand-700 font-medium" : "text-gray-400"}>Vurderingsdetaljer</span>
+        <span className={step >= 3 ? "text-brand-700 font-medium" : "text-gray-400"}>Karakterer</span>
       </div>
 
       {/* Step 1 */}
       {step === 1 && (
         <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-teal-600" /> Velg faggruppe</CardTitle></CardHeader>
+          <CardHeader><CardTitle className="flex items-center gap-2"><BookOpen className="w-5 h-5 text-brand-600" /> Velg faggruppe</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             {classGroups.length === 0 ? <p className="text-gray-500 text-center py-8">Du har ingen faggrupper. Kontakt ledelsen.</p> : (
               <div className="grid gap-3 md:grid-cols-2">
                 {classGroups.map((group) => (
                   <button key={group.id} onClick={() => setSelectedClassGroup(group.id)}
-                    className={`p-4 rounded-lg border-2 text-left transition-all ${selectedClassGroup === group.id ? "border-teal-500 bg-teal-50" : "border-gray-200 hover:border-teal-300"}`}>
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${selectedClassGroup === group.id ? "border-brand-500 bg-brand-50" : "border-gray-200 hover:border-brand-300"}`}>
                     <div className="font-medium text-gray-900">{group.name}</div>
                     <div className="text-sm text-gray-500 mt-1">{group.subject} · {group.grade}. trinn</div>
                     <div className="flex items-center gap-2 mt-2 text-sm text-gray-500"><Users className="w-4 h-4" /><span>{group.students.length} elever</span></div>
@@ -174,11 +174,11 @@ export default function RegistrerVurderingPage() {
       {step === 2 && (
         <div className="space-y-6">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><ClipboardCheck className="w-5 h-5 text-teal-600" /> Vurderingsdetaljer</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><ClipboardCheck className="w-5 h-5 text-brand-600" /> Vurderingsdetaljer</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-3">
                 <Label>Type vurdering</Label>
-                <div className="p-3 rounded-lg border-2 border-teal-500 bg-teal-50 text-left">
+                <div className="p-3 rounded-lg border-2 border-brand-500 bg-brand-50 text-left">
                   <div className="font-medium text-gray-900">Underveisvurdering</div>
                   <div className="text-xs text-gray-500 mt-1">Løpende vurdering i undervisningen</div>
                 </div>
@@ -188,7 +188,7 @@ export default function RegistrerVurderingPage() {
                 <div className="flex flex-wrap gap-2">
                   {ASSESSMENT_FORMS.map((f) => (
                     <button key={f.value} onClick={() => setForm(f.value)}
-                      className={`px-4 py-2 rounded-full border-2 transition-all flex items-center gap-2 ${form === f.value ? "border-teal-500 bg-teal-50 text-teal-700" : "border-gray-200 hover:border-teal-300"}`}>
+                      className={`px-4 py-2 rounded-full border-2 transition-all flex items-center gap-2 ${form === f.value ? "border-brand-500 bg-brand-50 text-brand-700" : "border-gray-200 hover:border-brand-300"}`}>
                       <span>{f.icon}</span><span>{f.label}</span>
                     </button>
                   ))}
@@ -211,7 +211,7 @@ export default function RegistrerVurderingPage() {
                 <div className="space-y-2 max-h-64 overflow-y-auto">
                   {competenceGoals.map((goal) => (
                     <div key={goal.id} onClick={() => toggleGoal(goal.id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedGoals.includes(goal.id) ? "border-teal-500 bg-teal-50" : "border-gray-200 hover:border-teal-300"}`}>
+                      className={`p-3 rounded-lg border cursor-pointer transition-all ${selectedGoals.includes(goal.id) ? "border-brand-500 bg-brand-50" : "border-gray-200 hover:border-brand-300"}`}>
                       <div className="flex items-start gap-3">
                         <Checkbox checked={selectedGoals.includes(goal.id)} className="mt-0.5" />
                         <div><Badge variant="secondary" className="mb-1">{goal.code}</Badge><p className="text-sm text-gray-700 line-clamp-2">{goal.description}</p></div>
@@ -230,7 +230,7 @@ export default function RegistrerVurderingPage() {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5 text-teal-600" /> Sett karakterer</CardTitle>
+              <CardTitle className="flex items-center gap-2"><Users className="w-5 h-5 text-brand-600" /> Sett karakterer</CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-gray-500">Sett alle til:</span>
                 {GRADES.map((g) => (
@@ -243,7 +243,7 @@ export default function RegistrerVurderingPage() {
             <div className="space-y-3">
               {students.map((student) => (
                 <div key={student.id} className="flex items-center gap-4 p-3 rounded-lg border border-gray-200">
-                  <div className="w-10 h-10 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center font-semibold text-sm">
+                  <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold text-sm">
                     {student.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
                   </div>
                   <div className="flex-1"><div className="font-medium text-gray-900">{student.name}</div></div>
@@ -268,9 +268,9 @@ export default function RegistrerVurderingPage() {
       <div className="flex justify-between">
         <Button variant="outline" onClick={handlePrevStep} disabled={step === 1}><ArrowLeft className="w-4 h-4 mr-2" /> Forrige</Button>
         {step < 3 ? (
-          <Button onClick={handleNextStep} disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2)} className="bg-teal-600 hover:bg-teal-700">Neste <ArrowRight className="w-4 h-4 ml-2" /></Button>
+          <Button onClick={handleNextStep} disabled={(step === 1 && !canProceedStep1) || (step === 2 && !canProceedStep2)} className="bg-brand-600 hover:bg-brand-700">Neste <ArrowRight className="w-4 h-4 ml-2" /></Button>
         ) : (
-          <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className="bg-teal-600 hover:bg-teal-700">
+          <Button onClick={handleSubmit} disabled={!canSubmit || isSubmitting} className="bg-brand-600 hover:bg-brand-700">
             {isSubmitting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Lagrer...</> : <><Check className="w-4 h-4 mr-2" /> Lagre vurderinger</>}
           </Button>
         )}

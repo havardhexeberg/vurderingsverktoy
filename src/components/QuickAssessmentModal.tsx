@@ -147,7 +147,7 @@ export function QuickAssessmentModal({
           <div className="bg-gray-50 rounded-lg p-3 space-y-2">
             {student && (
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-teal-100 text-teal-700 flex items-center justify-center text-sm font-semibold">
+                <div className="w-8 h-8 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-sm font-semibold">
                   {student.name
                     .split(" ")
                     .map((n) => n[0])
@@ -164,7 +164,7 @@ export function QuickAssessmentModal({
             )}
             {competenceGoal && (
               <div className="pt-2 border-t border-gray-200">
-                <span className="px-2 py-0.5 bg-teal-100 text-teal-700 text-xs font-semibold rounded">
+                <span className="px-2 py-0.5 bg-brand-100 text-brand-700 text-xs font-semibold rounded">
                   {competenceGoal.code}
                 </span>
                 <p className="text-sm text-gray-600 mt-1 line-clamp-2">
@@ -188,7 +188,7 @@ export function QuickAssessmentModal({
                     g.color
                   } ${
                     grade === g.value
-                      ? "ring-2 ring-offset-2 ring-teal-500 scale-110"
+                      ? "ring-2 ring-offset-2 ring-brand-500 scale-110"
                       : "opacity-70 hover:opacity-100"
                   }`}
                 >
@@ -268,7 +268,7 @@ export function QuickAssessmentModal({
               Avbryt
             </Button>
             <Button
-              className="flex-1 bg-teal-600 hover:bg-teal-700"
+              className="flex-1 bg-brand-600 hover:bg-brand-700"
               onClick={handleSubmit}
               disabled={loading || !grade}
             >

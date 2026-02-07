@@ -210,7 +210,7 @@ export default function MineEleverPage() {
         {children}
         <ArrowUpDown
           className={`h-3 w-3 ${
-            sortField === field ? "text-teal-600" : "text-gray-400"
+            sortField === field ? "text-brand-600" : "text-gray-400"
           }`}
         />
       </div>
@@ -361,7 +361,7 @@ export default function MineEleverPage() {
                   return (
                     <TableRow
                       key={item.student.id}
-                      className="cursor-pointer hover:bg-teal-50 transition-colors"
+                      className="cursor-pointer hover:bg-brand-50 transition-colors"
                       onClick={() => navigateToStudent(item)}
                     >
                       <TableCell>

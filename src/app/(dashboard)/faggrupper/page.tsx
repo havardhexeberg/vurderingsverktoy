@@ -51,7 +51,7 @@ const subjectConfig: Record<string, { icon: React.ElementType; color: string; bg
   "Kunst og handverk": { icon: Palette, color: "text-pink-600", bgColor: "bg-pink-50" },
   "Musikk": { icon: Music, color: "text-indigo-600", bgColor: "bg-indigo-50" },
   "Mat og helse": { icon: Utensils, color: "text-lime-600", bgColor: "bg-lime-50" },
-  "Kroppsoving": { icon: Dumbbell, color: "text-teal-600", bgColor: "bg-teal-50" },
+  "Kroppsoving": { icon: Dumbbell, color: "text-brand-600", bgColor: "bg-brand-50" },
 }
 
 const getSubjectConfig = (subject: string) => {
@@ -108,7 +108,7 @@ export default function FaggrupperPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
       </div>
     )
   }
@@ -126,7 +126,7 @@ export default function FaggrupperPage() {
       {/* Stats Cards - Compact inline */}
       <div className="flex items-center gap-6 text-sm">
         <div className="flex items-center gap-2">
-          <BookOpen className="w-5 h-5 text-teal-600" />
+          <BookOpen className="w-5 h-5 text-brand-600" />
           <span className="font-medium">{classGroups.length}</span>
           <span className="text-gray-500">faggrupper</span>
         </div>
@@ -175,18 +175,18 @@ export default function FaggrupperPage() {
                 <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 pl-4">
                   {groups.map((group) => (
                     <Link key={group.id} href={`/faggrupper/${group.id}`}>
-                      <Card className="hover:shadow-md hover:border-teal-300 transition-all cursor-pointer group">
+                      <Card className="hover:shadow-md hover:border-brand-300 transition-all cursor-pointer group">
                         <CardContent className="p-4">
                           <div className="flex items-start justify-between mb-3">
                             <div>
-                              <h3 className="font-medium text-gray-900 group-hover:text-teal-700 transition-colors">
+                              <h3 className="font-medium text-gray-900 group-hover:text-brand-700 transition-colors">
                                 {group.name}
                               </h3>
                               <Badge variant="secondary" className="mt-1">
                                 {group.grade}. trinn
                               </Badge>
                             </div>
-                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-teal-600 transition-colors" />
+                            <ChevronRight className="w-5 h-5 text-gray-400 group-hover:text-brand-600 transition-colors" />
                           </div>
                           <div className="flex items-center gap-4 text-sm text-gray-500">
                             <div className="flex items-center gap-1">

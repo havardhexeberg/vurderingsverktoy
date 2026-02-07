@@ -53,7 +53,7 @@ export function Sidebar() {
     <>
       <div className="flex h-16 items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-teal-600" />
+          <BookOpen className="h-6 w-6 text-brand-600" />
           <span className="text-lg font-semibold">Lærer</span>
         </Link>
         <Button
@@ -78,7 +78,7 @@ export function Sidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-teal-50 text-teal-700"
+                  ? "bg-brand-50 text-brand-700"
                   : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
@@ -92,7 +92,7 @@ export function Sidebar() {
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-teal-100 text-teal-700 text-sm">
+            <AvatarFallback className="bg-brand-100 text-brand-700 text-sm">
               {session?.user?.name ? getInitials(session.user.name) : "?"}
             </AvatarFallback>
           </Avatar>

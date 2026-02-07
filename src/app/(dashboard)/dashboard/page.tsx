@@ -144,7 +144,7 @@ export default function DashboardPage() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <Loader2 className="w-8 h-8 animate-spin text-teal-600" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-600" />
       </div>
     )
   }
@@ -163,7 +163,7 @@ export default function DashboardPage() {
 
       {/* CTA — Ny vurdering (bred, lav, elegant) */}
       <Link href="/vurderinger/ny" className="block">
-        <Button className="w-full h-14 bg-teal-600 hover:bg-teal-700 text-lg font-semibold shadow-sm hover:shadow-md transition-all">
+        <Button className="w-full h-14 bg-brand-600 hover:bg-brand-700 text-lg font-semibold shadow-sm hover:shadow-md transition-all">
           <Plus className="w-5 h-5 mr-2" />
           Ny vurdering
         </Button>
@@ -173,7 +173,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 lg:grid-cols-3">
         {/* Urgent Actions — Clickable, links to Mine oppgaver */}
         <Link href="/oppgaver" className="lg:col-span-2 block">
-          <Card className="h-full hover:shadow-md hover:border-teal-300 transition-all cursor-pointer">
+          <Card className="h-full hover:shadow-md hover:border-brand-300 transition-all cursor-pointer">
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle className="flex items-center gap-2">
@@ -261,13 +261,13 @@ export default function DashboardPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Calendar className="w-5 h-5 text-teal-600" />
+              <Calendar className="w-5 h-5 text-brand-600" />
               Terminslutt
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center">
-              <div className="text-5xl font-bold text-teal-600 mb-2">
+              <div className="text-5xl font-bold text-brand-600 mb-2">
                 {daysUntilTermEnd}
               </div>
               <div className="text-gray-500 mb-4">dager igjen</div>
@@ -287,7 +287,7 @@ export default function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-teal-600" />
+            <TrendingUp className="w-5 h-5 text-brand-600" />
             Vurderingsdekning per gruppe
           </CardTitle>
           <CardDescription>
