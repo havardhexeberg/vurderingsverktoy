@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -29,6 +30,7 @@ interface ClassGroupData {
 }
 
 export default function FaggrupperPage() {
+  const router = useRouter()
   const [classGroups, setClassGroups] = useState<ClassGroupData[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -81,7 +83,7 @@ export default function FaggrupperPage() {
               </TableHeader>
               <TableBody>
                 {classGroups.map((cg) => (
-                  <TableRow key={cg.id}>
+                  <TableRow key={cg.id} className="cursor-pointer" onClick={() => router.push(`/rektor/faggrupper/${cg.id}`)}>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <BookOpen className="h-4 w-4 text-blue-600" />

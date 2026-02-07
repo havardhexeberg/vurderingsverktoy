@@ -16,7 +16,6 @@ import {
   X,
   FileBarChart,
   School,
-  AlertTriangle,
   GraduationCap,
   BarChart3,
   FileUp,
@@ -26,14 +25,13 @@ import { useState } from "react"
 
 const navigation = [
   { name: "Oversikt", href: "/rektor", icon: LayoutDashboard },
-  { name: "Alle elever", href: "/rektor/elever", icon: GraduationCap },
-  { name: "Importer elever", href: "/rektor/import", icon: FileUp },
-  { name: "Lærere", href: "/rektor/larere", icon: Users },
   { name: "Faggrupper", href: "/rektor/faggrupper", icon: BookOpen },
-  { name: "Opprett faggruppe", href: "/rektor/faggrupper/ny", icon: UserPlus },
   { name: "Vurderingspraksis", href: "/rektor/vurderingspraksis", icon: BarChart3 },
+  { name: "Lærere", href: "/rektor/larere", icon: Users },
+  { name: "Alle elever", href: "/rektor/elever", icon: GraduationCap },
   { name: "Rapporter", href: "/rektor/rapporter", icon: FileBarChart },
-  { name: "Varsler", href: "/rektor/varsler", icon: AlertTriangle },
+  { name: "Importer elever", href: "/rektor/import", icon: FileUp },
+  { name: "Opprett faggruppe", href: "/rektor/faggrupper/ny", icon: UserPlus },
 ]
 
 export function RektorSidebar() {
@@ -54,7 +52,7 @@ export function RektorSidebar() {
     <>
       <div className="flex h-16 items-center justify-between px-4">
         <Link href="/rektor" className="flex items-center gap-2">
-          <School className="h-6 w-6 text-purple-600" />
+          <School className="h-6 w-6 text-brand-600" />
           <span className="text-lg font-semibold">Rektorportal</span>
         </Link>
         <Button
@@ -81,7 +79,7 @@ export function RektorSidebar() {
               className={cn(
                 "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-purple-50 text-purple-700"
+                  ? "bg-brand-50 text-brand-700"
                   : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
               )}
             >
@@ -97,7 +95,7 @@ export function RektorSidebar() {
       <div className="p-4">
         <div className="flex items-center gap-3 mb-3">
           <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-purple-100 text-purple-700 text-sm">
+            <AvatarFallback className="bg-brand-100 text-brand-700 text-sm">
               {session?.user?.name ? getInitials(session.user.name) : "?"}
             </AvatarFallback>
           </Avatar>
@@ -105,7 +103,7 @@ export function RektorSidebar() {
             <p className="text-sm font-medium text-gray-900 truncate">
               {session?.user?.name}
             </p>
-            <p className="text-xs text-purple-600 truncate">Rektor</p>
+            <p className="text-xs text-brand-600 truncate">Rektor</p>
           </div>
         </div>
         <Button

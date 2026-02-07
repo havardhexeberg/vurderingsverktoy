@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -48,6 +49,7 @@ interface StudentData {
 }
 
 export default function RektorEleverPage() {
+  const router = useRouter()
   const [students, setStudents] = useState<StudentData[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [search, setSearch] = useState("")
@@ -116,7 +118,7 @@ export default function RektorEleverPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-purple-600" />
+          <GraduationCap className="h-6 w-6 text-brand-600" />
           Alle elever
         </h1>
         <p className="text-gray-600">Oversikt over alle elever på skolen</p>
@@ -131,7 +133,7 @@ export default function RektorEleverPage() {
                 <p className="text-sm text-gray-600">Klar for standpunkt</p>
                 <p className="text-2xl font-bold text-green-600">{statusCounts.ok}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-500" />
+              <CheckCircle className="h-6 w-6 text-green-500" />
             </div>
           </CardContent>
         </Card>
@@ -142,7 +144,7 @@ export default function RektorEleverPage() {
                 <p className="text-sm text-gray-600">Nesten klar</p>
                 <p className="text-2xl font-bold text-amber-600">{statusCounts.warning}</p>
               </div>
-              <Clock className="h-8 w-8 text-amber-500" />
+              <Clock className="h-6 w-6 text-amber-500" />
             </div>
           </CardContent>
         </Card>
@@ -153,7 +155,7 @@ export default function RektorEleverPage() {
                 <p className="text-sm text-gray-600">Kritisk</p>
                 <p className="text-2xl font-bold text-red-600">{statusCounts.critical}</p>
               </div>
-              <AlertTriangle className="h-8 w-8 text-red-500" />
+              <AlertTriangle className="h-6 w-6 text-red-500" />
             </div>
           </CardContent>
         </Card>
@@ -222,7 +224,7 @@ export default function RektorEleverPage() {
                 <TableRow>
                   <TableHead>Navn</TableHead>
                   <TableHead>Trinn</TableHead>
-                  <TableHead>Fag</TableHead>
+                  <TableHead>Skoleklasse</TableHead>
                   <TableHead>Vurderinger</TableHead>
                   <TableHead>Sist vurdert</TableHead>
                   <TableHead>Status</TableHead>
@@ -230,7 +232,7 @@ export default function RektorEleverPage() {
               </TableHeader>
               <TableBody>
                 {students.map((student) => (
-                  <TableRow key={student.id}>
+                  <TableRow key={student.id} className="cursor-pointer" onClick={() => router.push(`/rektor/elever/${student.id}`)}>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{student.name}</span>
@@ -242,11 +244,7 @@ export default function RektorEleverPage() {
                       </div>
                     </TableCell>
                     <TableCell>{student.grade}. trinn</TableCell>
-                    <TableCell>
-                      <div className="text-sm text-gray-600">
-                        {student.subjects.join(", ") || "-"}
-                      </div>
-                    </TableCell>
+                    <TableCell>{student.grade}A</TableCell>
                     <TableCell>{student.assessmentCount}</TableCell>
                     <TableCell>
                       {student.lastAssessment

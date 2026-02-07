@@ -50,10 +50,10 @@ const SUBJECTS = [
   "Spansk",
   "Tysk",
   "Fransk",
-  "Kunst og handverk",
+  "Kunst og håndverk",
   "Musikk",
   "Mat og helse",
-  "Kroppsoving",
+  "Kroppsøving",
 ]
 
 export default function CreateClassGroupPage() {
@@ -191,7 +191,7 @@ export default function CreateClassGroupPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Opprett faggruppe</h1>
           <p className="text-gray-600">
-            Opprett en ny faggruppe og tildel elever og laerer
+            Opprett en ny faggruppe og tildel elever og lærer
           </p>
         </div>
       </div>
@@ -207,7 +207,7 @@ export default function CreateClassGroupPage() {
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Navn pa faggruppe *</Label>
+                <Label htmlFor="name">Navn på faggruppe *</Label>
                 <Input
                   id="name"
                   placeholder="f.eks. Matematikk 10A"
@@ -248,10 +248,10 @@ export default function CreateClassGroupPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="teacher">Laerer *</Label>
+                <Label htmlFor="teacher">Lærer *</Label>
                 <Select value={teacherId} onValueChange={setTeacherId}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Velg laerer" />
+                    <SelectValue placeholder="Velg lærer" />
                   </SelectTrigger>
                   <SelectContent>
                     {teachers.map((t) => (
@@ -278,7 +278,7 @@ export default function CreateClassGroupPage() {
               Velg elever
             </CardTitle>
             <CardDescription>
-              Velg elevene som skal vare med i faggruppen
+              Velg elevene som skal være med i faggruppen
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -286,7 +286,7 @@ export default function CreateClassGroupPage() {
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
-                  placeholder="Sok etter elev..."
+                  placeholder="Søk etter elev..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
@@ -312,7 +312,7 @@ export default function CreateClassGroupPage() {
 
             <div className="text-sm text-gray-600">
               {selectedStudents.length} elever valgt
-              {grade && ` av ${filteredStudents.length} pa ${grade}. trinn`}
+              {grade && ` av ${filteredStudents.length} på ${grade}. trinn`}
             </div>
 
             <div className="border rounded-lg max-h-96 overflow-y-auto">
@@ -329,8 +329,8 @@ export default function CreateClassGroupPage() {
                     <TableRow>
                       <TableCell colSpan={3} className="text-center text-gray-500 py-8">
                         {grade
-                          ? "Ingen elever funnet pa dette trinnet"
-                          : "Velg et trinn for a se elever"}
+                          ? "Ingen elever funnet på dette trinnet"
+                          : "Velg et trinn for å se elever"}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -364,7 +364,7 @@ export default function CreateClassGroupPage() {
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-purple-600 hover:bg-purple-700"
+            className="bg-brand-600 hover:bg-brand-700"
           >
             {isLoading ? "Oppretter..." : "Opprett faggruppe"}
           </Button>

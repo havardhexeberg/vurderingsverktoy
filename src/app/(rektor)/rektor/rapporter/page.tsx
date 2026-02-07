@@ -88,7 +88,7 @@ export default function RektorRapporterPage() {
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <School className="h-5 w-5 text-purple-600" />
+              <School className="h-5 w-5 text-brand-600" />
               Skoleoversikt
             </CardTitle>
             <CardDescription>

@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
         type: string
       }[]
       averageGrade: number | null
+      lastAssessmentDate: string | null
     }[]> = {}
 
     competenceGoals.forEach(goal => {
@@ -107,6 +108,14 @@ export async function GET(request: NextRequest) {
         ? Math.round(gradedAssessments.reduce((sum, a) => sum + (a.grade || 0), 0) / gradedAssessments.length * 10) / 10
         : null
 
+      // Find most recent assessment date for this goal
+      const lastAssessmentDate = assessmentsForGoal.length > 0
+        ? assessmentsForGoal.reduce((latest, a) =>
+            new Date(a.date) > new Date(latest) ? a.date.toISOString() : latest,
+            assessmentsForGoal[0].date.toISOString()
+          )
+        : null
+
       competenceBySubject[goal.subject].push({
         goal,
         profile: profileMap.get(goal.id) || null,
@@ -121,6 +130,7 @@ export async function GET(request: NextRequest) {
           type: a.type,
         })),
         averageGrade,
+        lastAssessmentDate,
       })
     })
 

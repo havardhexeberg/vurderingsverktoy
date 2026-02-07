@@ -3,16 +3,15 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import {
   Users,
-  BookOpen,
   AlertTriangle,
   CheckCircle,
   Clock,
-  TrendingUp,
   School,
 } from "lucide-react"
 
@@ -79,65 +78,47 @@ export default function RektorDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <School className="h-6 w-6 text-purple-600" />
+          <School className="h-6 w-6 text-brand-600" />
           Skoleoversikt
         </h1>
-        <p className="text-gray-600">Velkommen til rektorportalenDashboard</p>
+        <p className="text-gray-600">Velkommen til rektorportalen</p>
       </div>
 
       {/* Key metrics */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Lærere
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalTeachers}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <Users className="h-4 w-4" />
-              Elever
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalStudents}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <BookOpen className="h-4 w-4" />
-              Faggrupper
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalClassGroups}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
-              <TrendingUp className="h-4 w-4" />
-              Vurderinger
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalAssessments}</div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4 grid-cols-2">
+        <Link href="/rektor/larere">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Lærere
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalTeachers}</div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/rektor/elever">
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-sm text-gray-600 flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Elever
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.totalStudents}</div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Status overview */}
       <div className="grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Elevstatus på skolen</CardTitle>
+            <CardTitle>Faggruppestatus</CardTitle>
             <CardDescription>
               Oversikt over vurderingsdekning for alle elever
             </CardDescription>
@@ -190,9 +171,11 @@ export default function RektorDashboard() {
                   className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                 >
                   <div>
-                    <div className="font-medium">{teacher.name}</div>
+                    <Link href="/rektor/larere" className="font-medium hover:underline">
+                      {teacher.name}
+                    </Link>
                     <div className="text-sm text-gray-600">
-                      {teacher.classGroups} faggrupper | {teacher.assessmentCount} vurderinger
+                      {teacher.classGroups} faggrupper
                     </div>
                   </div>
                   {teacher.criticalStudents > 0 ? (
@@ -222,7 +205,7 @@ export default function RektorDashboard() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-red-700">
+            <p className="text-sm text-red-700">
               {stats.statusSummary.critical} elever har kritisk status og trenger flere vurderinger.
               Se detaljer under "Varsler" for å følge opp.
             </p>

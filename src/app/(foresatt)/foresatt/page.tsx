@@ -8,9 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
-  Heart,
-  GraduationCap,
   BookOpen,
+  GraduationCap,
   Calendar,
   ArrowRight,
   CheckCircle,
@@ -106,7 +105,7 @@ export default function ForesattDashboard() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Heart className="h-6 w-6 text-rose-600" />
+          <BookOpen className="h-6 w-6 text-brand-600" />
           Velkommen til foresattportalen
         </h1>
         <p className="text-gray-600">Se vurderinger og kompetanseutvikling for dine barn</p>
@@ -130,7 +129,7 @@ export default function ForesattDashboard() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5 text-rose-600" />
+                        <GraduationCap className="h-5 w-5 text-brand-600" />
                         {child.name}
                       </CardTitle>
                       <CardDescription>
@@ -142,11 +141,6 @@ export default function ForesattDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-600">Totalt antall vurderinger</span>
-                      <span className="font-medium">{child.assessmentCount}</span>
-                    </div>
-
                     {child.recentAssessments.length > 0 && (
                       <div>
                         <h4 className="text-sm font-medium mb-2">Siste vurderinger</h4>
@@ -165,8 +159,10 @@ export default function ForesattDashboard() {
                                   </div>
                                 </div>
                               </div>
-                              {assessment.grade && (
+                              {assessment.grade !== null ? (
                                 <Badge variant="outline">{assessment.grade}</Badge>
+                              ) : (
+                                <Badge variant="outline">IV</Badge>
                               )}
                             </div>
                           ))}
@@ -175,8 +171,8 @@ export default function ForesattDashboard() {
                     )}
 
                     <Link href={`/foresatt/barn/${child.id}`}>
-                      <Button variant="outline" className="w-full">
-                        Se alle vurderinger
+                      <Button variant="outline" className="w-full cursor-pointer">
+                        Se elev
                         <ArrowRight className="h-4 w-4 ml-2" />
                       </Button>
                     </Link>
@@ -187,15 +183,15 @@ export default function ForesattDashboard() {
           </div>
 
           {/* Info box */}
-          <Card className="bg-rose-50 border-rose-200">
-            <CardContent className="pt-6">
-              <div className="flex items-start gap-4">
-                <div className="p-2 bg-rose-100 rounded-lg">
-                  <Calendar className="h-6 w-6 text-rose-600" />
+          <Card className="bg-brand-50 border-brand-200">
+            <CardContent className="py-3 px-4">
+              <div className="flex items-start gap-3">
+                <div className="p-1.5 bg-brand-100 rounded-lg">
+                  <Calendar className="h-4 w-4 text-brand-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-rose-900">Om vurderinger</h3>
-                  <p className="text-sm text-rose-800 mt-1">
+                  <h3 className="font-semibold text-brand-900 text-sm">Om vurderinger</h3>
+                  <p className="text-xs text-brand-800 mt-0.5">
                     Her ser du kun publiserte vurderinger fra lærerne. Kladder og interne notater er ikke synlige.
                     Ta kontakt med kontaktlærer hvis du har spørsmål om barnets faglige utvikling.
                   </p>

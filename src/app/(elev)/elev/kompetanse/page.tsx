@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   Accordion,
   AccordionContent,
@@ -29,10 +29,11 @@ import {
   Calendar,
   MessageSquare,
   ChevronRight,
-  Star,
 } from "lucide-react"
 import { format } from "date-fns"
 import { nb } from "date-fns/locale"
+import { SubjectTabs } from "@/components/shared/subject-tabs"
+import { StarIndicator } from "@/components/shared/star-indicator"
 
 interface Assessment {
   id: string
@@ -57,6 +58,7 @@ interface CompetenceData {
   assessmentCount: number
   assessments?: Assessment[]
   averageGrade?: number | null
+  lastAssessmentDate?: string | null
 }
 
 interface StudentProfile {
@@ -132,46 +134,41 @@ function KompetanseContent() {
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <Target className="h-6 w-6 text-cyan-600" />
-          Mine kompetansemal
+          Mine kompetansemål
         </h1>
-        <p className="text-gray-600">Se hvor du star pa hvert kompetansemal - trykk for detaljer</p>
+        <p className="text-gray-600">Se hvor du står på hvert kompetansemål - trykk for detaljer</p>
       </div>
 
       {/* Legend */}
       <Card>
-        <CardContent className="pt-4">
-          <div className="flex flex-wrap items-center gap-4 text-sm">
-            <span className="text-gray-600">Maloppnaelse:</span>
-            <div className="flex items-center gap-1">
+        <CardContent className="py-2">
+          <div className="grid grid-cols-4 items-center gap-4 text-sm">
+            <div className="flex items-center gap-1 justify-center">
               <Badge className="bg-green-100 text-green-800">5-6</Badge>
-              <span>Hoy</span>
+              <span>Høy</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 justify-center">
               <Badge className="bg-amber-100 text-amber-800">3-4</Badge>
               <span>Middels</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 justify-center">
               <Badge className="bg-red-100 text-red-800">1-2</Badge>
               <span>Lav</span>
             </div>
-            <div className="flex items-center gap-1">
-              <Badge className="bg-gray-100 text-gray-600">-</Badge>
-              <span>Ikke vurdert</span>
+            <div className="flex items-center gap-1 justify-center">
+              <Badge variant="outline">IV</Badge>
+              <span>IV</span>
             </div>
           </div>
         </CardContent>
       </Card>
 
       {/* Subject tabs */}
-      <Tabs value={activeSubject} onValueChange={setActiveSubject}>
-        <TabsList className="flex-wrap">
-          {profile.subjects.map((subject) => (
-            <TabsTrigger key={subject} value={subject}>
-              {subject}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
+      <SubjectTabs
+        subjects={profile.subjects}
+        activeSubject={activeSubject}
+        onValueChange={setActiveSubject}
+      >
         {profile.subjects.map((subject) => {
           const goals = profile.competenceBySubject[subject] || []
           const assessed = goals.filter(g => g.assessmentCount > 0).length
@@ -194,7 +191,7 @@ function KompetanseContent() {
                   <div className="flex items-center justify-between mb-4">
                     <div>
                       <h2 className="text-lg font-semibold">{subject}</h2>
-                      <p className="text-gray-600">{goals.length} kompetansemal</p>
+                      <p className="text-gray-600">{goals.length} kompetansemål</p>
                     </div>
                     <div className="text-right">
                       <div className="text-2xl font-bold text-cyan-600">{coverage}%</div>
@@ -203,7 +200,7 @@ function KompetanseContent() {
                   </div>
                   <Progress value={coverage} className="h-3" />
                   <div className="mt-2 text-sm text-gray-600">
-                    {assessed} av {goals.length} mal har blitt vurdert
+                    {assessed} av {goals.length} mål har blitt vurdert
                   </div>
                 </CardContent>
               </Card>
@@ -231,7 +228,7 @@ function KompetanseContent() {
                           <button
                             key={item.goal.id}
                             onClick={() => openGoalDetails(item)}
-                            className="w-full flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left group"
+                            className="w-full flex items-start gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors text-left group cursor-pointer"
                           >
                             <div className="mt-1">
                               {item.assessmentCount > 0 ? (
@@ -256,17 +253,7 @@ function KompetanseContent() {
                               </p>
                             </div>
                             <div className="flex items-center gap-2">
-                              {item.averageGrade !== undefined && item.averageGrade !== null ? (
-                                <div className="flex flex-col items-center">
-                                  <Badge className={getGradeColor(item.averageGrade)}>
-                                    <Star className="h-3 w-3 mr-1" />
-                                    {item.averageGrade}
-                                  </Badge>
-                                  <span className="text-xs text-gray-500 mt-1">snitt</span>
-                                </div>
-                              ) : (
-                                <Badge className="bg-gray-100 text-gray-600">-</Badge>
-                              )}
+                              <StarIndicator lastAssessmentDate={item.lastAssessmentDate || null} />
                               <ChevronRight className="h-5 w-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
                             </div>
                           </button>
@@ -288,10 +275,10 @@ function KompetanseContent() {
                       <h3 className="font-semibold text-amber-900">Tips</h3>
                       <p className="text-sm text-amber-800 mt-1">
                         {coverage < 50
-                          ? "Du har fortsatt mange kompetansemal som ikke er vurdert. Spor laereren din om muligheter for a vise kompetanse."
+                          ? "Du har fortsatt mange kompetansemål som ikke er vurdert. Spør læreren din om muligheter for å vise kompetanse."
                           : coverage < 80
-                          ? "Du er godt pa vei! Fokuser pa de gjenvaerende kompetansemalene."
-                          : "Flott jobbet! Du har vist kompetanse pa de fleste malene."}
+                          ? "Du er godt på vei! Fokuser på de gjenværende kompetansemålene."
+                          : "Flott jobbet! Du har vist kompetanse på de fleste målene."}
                       </p>
                     </div>
                   </div>
@@ -300,7 +287,7 @@ function KompetanseContent() {
             </TabsContent>
           )
         })}
-      </Tabs>
+      </SubjectTabs>
 
       {/* Competence Goal Detail Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -325,11 +312,11 @@ function KompetanseContent() {
               {/* Achievement summary */}
               <div className="flex items-center justify-between p-4 bg-cyan-50 rounded-lg">
                 <div>
-                  <p className="text-sm text-gray-600">Maloppnaelse</p>
+                  <p className="text-sm text-gray-600">Måloppnåelse</p>
                   <p className="font-semibold">
                     {selectedGoal.averageGrade !== undefined && selectedGoal.averageGrade !== null
                       ? `Snittkarakter: ${selectedGoal.averageGrade}`
-                      : "Ikke vurdert enna"}
+                      : "Ikke vurdert ennå"}
                   </p>
                 </div>
                 {selectedGoal.averageGrade !== undefined && selectedGoal.averageGrade !== null && (
@@ -348,7 +335,7 @@ function KompetanseContent() {
 
                 {!selectedGoal.assessments || selectedGoal.assessments.length === 0 ? (
                   <p className="text-sm text-gray-500 text-center py-4">
-                    Ingen vurderinger registrert for dette kompetansemalet enna.
+                    Ingen vurderinger registrert for dette kompetansemålet ennå.
                   </p>
                 ) : (
                   <div className="space-y-3">
@@ -366,10 +353,12 @@ function KompetanseContent() {
                               {FORM_LABELS[assessment.form] || assessment.form}
                             </Badge>
                           </div>
-                          {assessment.grade !== null && (
+                          {assessment.grade !== null ? (
                             <Badge className={getGradeColor(assessment.grade)}>
                               Karakter: {assessment.grade}
                             </Badge>
+                          ) : (
+                            <Badge variant="outline">IV</Badge>
                           )}
                         </div>
 

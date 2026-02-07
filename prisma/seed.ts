@@ -27,7 +27,7 @@ function randomGrade(): number {
 // All subjects in Norwegian ungdomsskole
 const SUBJECTS = [
   'Matematikk', 'Norsk', 'Engelsk', 'Naturfag', 'Samfunnsfag',
-  'KRLE', 'Spansk', 'Kunst og handverk', 'Musikk', 'Mat og helse', 'Kroppsoving'
+  'KRLE', 'Spansk', 'Kunst og håndverk', 'Musikk', 'Mat og helse', 'Kroppsøving'
 ]
 
 const FORMS = ['WRITTEN', 'ORAL', 'ORAL_PRACTICAL', 'PRACTICAL']
@@ -58,8 +58,8 @@ async function main() {
     { email: 'spansk.larer@test.no', name: 'Maria Garcia', subjects: ['Spansk'] },
     { email: 'naturfag.larer@test.no', name: 'Per Olsen', subjects: ['Naturfag'] },
     { email: 'samfunn.larer@test.no', name: 'Line Johansen', subjects: ['Samfunnsfag', 'KRLE'] },
-    { email: 'kunst.larer@test.no', name: 'Kristin Vik', subjects: ['Kunst og handverk', 'Musikk'] },
-    { email: 'gym.larer@test.no', name: 'Thomas Moe', subjects: ['Kroppsoving', 'Mat og helse'] },
+    { email: 'kunst.larer@test.no', name: 'Kristin Vik', subjects: ['Kunst og håndverk', 'Musikk'] },
+    { email: 'gym.larer@test.no', name: 'Thomas Moe', subjects: ['Kroppsøving', 'Mat og helse'] },
   ]
 
   const subjectToTeacher: Record<string, string> = {}
@@ -291,10 +291,10 @@ async function main() {
     'Samfunnsfag': ['Prosjektarbeid', 'Skriftlig prove'],
     'KRLE': ['Presentasjon', 'Skriftlig prove'],
     'Spansk': ['Muntlig samtale', 'Skriftlig prove'],
-    'Kunst og handverk': ['Praktisk oppgave', 'Utstilling'],
+    'Kunst og håndverk': ['Praktisk oppgave', 'Utstilling'],
     'Musikk': ['Praktisk opptreden', 'Samspill'],
     'Mat og helse': ['Praktisk matlaging', 'Ernaering prove'],
-    'Kroppsoving': ['Ballspill', 'Friidrett'],
+    'Kroppsøving': ['Ballspill', 'Friidrett'],
   }
 
   const feedback = ['Godt arbeid!', 'Viser god forstaelse.', 'Fortsett slik!', 'Solid prestasjon.']

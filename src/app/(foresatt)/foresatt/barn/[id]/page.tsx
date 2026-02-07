@@ -7,25 +7,18 @@ import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+import { TabsContent } from "@/components/ui/tabs"
 import {
   ArrowLeft,
   GraduationCap,
   BookOpen,
   Target,
   ShieldOff,
-  User,
 } from "lucide-react"
 import { format } from "date-fns"
 import { nb } from "date-fns/locale"
+import { SubjectTabs } from "@/components/shared/subject-tabs"
+import { AssessmentTable } from "@/components/shared/assessment-table"
 
 interface Assessment {
   id: string
@@ -34,6 +27,7 @@ interface Assessment {
   form: string
   grade: number | null
   feedback: string | null
+  description?: string | null
   classGroup: {
     subject: string
   }
@@ -99,25 +93,6 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
     }
   }
 
-  const getFormLabel = (form: string) => {
-    const labels: Record<string, string> = {
-      WRITTEN: "Skriftlig",
-      ORAL: "Muntlig",
-      ORAL_PRACTICAL: "Muntlig-praktisk",
-      PRACTICAL: "Praktisk",
-    }
-    return labels[form] || form
-  }
-
-  const getTypeLabel = (type: string) => {
-    const labels: Record<string, string> = {
-      ONGOING: "Underveisvurdering",
-      MIDTERM: "Halvårsvurdering",
-      FINAL: "Standpunkt",
-    }
-    return labels[type] || type
-  }
-
   const getLevelColor = (level: string) => {
     switch (level) {
       case "H":
@@ -145,6 +120,9 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
     return <div className="text-center p-8">Kunne ikke laste data</div>
   }
 
+  // Find teacher for active subject
+  const activeTeacher = child.teachers.find((t) => t.subject === activeSubject)
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-4">
@@ -155,31 +133,12 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
         </Link>
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <GraduationCap className="h-6 w-6 text-rose-600" />
+            <GraduationCap className="h-6 w-6 text-brand-600" />
             {child.name}
           </h1>
           <p className="text-gray-600">{child.grade}. trinn | {child.totalAssessments} vurderinger</p>
         </div>
       </div>
-
-      {/* Teachers */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Lærere
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex flex-wrap gap-2">
-            {child.teachers.map((teacher, i) => (
-              <Badge key={i} variant="outline" className="text-sm">
-                {teacher.name} ({teacher.subject})
-              </Badge>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Exemptions */}
       {child.exemptions.length > 0 && (
@@ -209,153 +168,87 @@ export default function ChildDetailPage({ params }: { params: Promise<{ id: stri
       )}
 
       {/* Subject tabs */}
-      <Tabs value={activeSubject} onValueChange={setActiveSubject}>
-        <TabsList>
-          {child.subjects.map((subject) => (
-            <TabsTrigger key={subject} value={subject}>
-              {subject}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <SubjectTabs
+        subjects={child.subjects}
+        activeSubject={activeSubject}
+        onValueChange={setActiveSubject}
+      >
+        {child.subjects.map((subject) => {
+          const teacher = child.teachers.find((t) => t.subject === subject)
 
-        {child.subjects.map((subject) => (
-          <TabsContent key={subject} value={subject} className="space-y-6">
-            {/* Competence profile */}
-            {child.competenceBySubject[subject]?.length > 0 && (
+          return (
+            <TabsContent key={subject} value={subject} className="space-y-6">
+              {/* Teacher info */}
+              {teacher && (
+                <p className="text-sm text-gray-600">
+                  Lærer: <span className="font-medium">{teacher.name}</span>
+                </p>
+              )}
+
+              {/* Competence profile */}
+              {child.competenceBySubject[subject]?.length > 0 && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-brand-600" />
+                      Kompetanseprofil
+                    </CardTitle>
+                    <CardDescription>
+                      Nivå på hvert kompetansemål basert på vurderinger
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {child.competenceBySubject[subject].map((profile) => (
+                        <div
+                          key={profile.id}
+                          className="flex items-start justify-between p-3 bg-gray-50 rounded-lg"
+                        >
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {profile.competenceGoal.code}
+                              </Badge>
+                              <span className="text-sm font-medium">
+                                {profile.competenceGoal.area}
+                              </span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                              {profile.competenceGoal.description}
+                            </p>
+                          </div>
+                          <Badge className={getLevelColor(profile.level)}>
+                            {profile.level}
+                          </Badge>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Assessments */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5 text-rose-600" />
-                    Kompetanseprofil
+                    <BookOpen className="h-5 w-5 text-brand-600" />
+                    Vurderinger i {subject}
                   </CardTitle>
-                  <CardDescription>
-                    Nivå på hvert kompetansemål basert på vurderinger
-                  </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
-                    {child.competenceBySubject[subject].map((profile) => (
-                      <div
-                        key={profile.id}
-                        className="flex items-start justify-between p-3 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {profile.competenceGoal.code}
-                            </Badge>
-                            <span className="text-sm font-medium">
-                              {profile.competenceGoal.area}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                            {profile.competenceGoal.description}
-                          </p>
-                        </div>
-                        <Badge className={getLevelColor(profile.level)}>
-                          {profile.level}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
+                  <AssessmentTable
+                    assessments={(child.assessmentsBySubject[subject] || []).map((a) => ({
+                      ...a,
+                      description: a.description || null,
+                    }))}
+                    showCompetenceGoals={true}
+                  />
                 </CardContent>
               </Card>
-            )}
-
-            {/* Assessments */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="h-5 w-5 text-rose-600" />
-                  Vurderinger i {subject}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {!child.assessmentsBySubject[subject] ||
-                child.assessmentsBySubject[subject].length === 0 ? (
-                  <p className="text-center py-8 text-gray-500">
-                    Ingen publiserte vurderinger ennå
-                  </p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Dato</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Form</TableHead>
-                        <TableHead>Karakter</TableHead>
-                        <TableHead>Kompetansemål</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {child.assessmentsBySubject[subject].map((assessment) => (
-                        <TableRow key={assessment.id}>
-                          <TableCell>
-                            {format(new Date(assessment.date), "d. MMM yyyy", { locale: nb })}
-                          </TableCell>
-                          <TableCell>{getTypeLabel(assessment.type)}</TableCell>
-                          <TableCell>{getFormLabel(assessment.form)}</TableCell>
-                          <TableCell>
-                            {assessment.grade ? (
-                              <Badge variant="outline">{assessment.grade}</Badge>
-                            ) : (
-                              "-"
-                            )}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {assessment.competenceGoals.map((cg, i) => (
-                                <Badge key={i} variant="secondary" className="text-xs">
-                                  {cg.competenceGoal.code}
-                                </Badge>
-                              ))}
-                              {assessment.competenceGoals.length === 0 && "-"}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Feedback section */}
-            {child.assessmentsBySubject[subject]?.some((a) => a.feedback) && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Tilbakemeldinger</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {child.assessmentsBySubject[subject]
-                      .filter((a) => a.feedback)
-                      .map((assessment) => (
-                        <div
-                          key={assessment.id}
-                          className="p-4 bg-gray-50 rounded-lg"
-                        >
-                          <div className="flex items-center gap-2 mb-2">
-                            <Badge variant="outline">
-                              {format(new Date(assessment.date), "d. MMM yyyy", { locale: nb })}
-                            </Badge>
-                            <span className="text-sm text-gray-600">
-                              {getFormLabel(assessment.form)}
-                            </span>
-                            {assessment.grade && (
-                              <Badge>{assessment.grade}</Badge>
-                            )}
-                          </div>
-                          <p className="text-sm">{assessment.feedback}</p>
-                        </div>
-                      ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </TabsContent>
-        ))}
-      </Tabs>
+            </TabsContent>
+          )
+        })}
+      </SubjectTabs>
     </div>
   )
 }

@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -107,7 +108,7 @@ export default function VurderingspraksisPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BarChart3 className="h-6 w-6 text-purple-600" />
+          <BarChart3 className="h-6 w-6 text-brand-600" />
           Vurderingspraksis
         </h1>
         <p className="text-gray-600">Sammenligning av lærernes vurderingspraksis</p>
@@ -122,7 +123,7 @@ export default function VurderingspraksisPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
+            <div className="text-3xl font-bold text-brand-600">
               {data.schoolAverages.assessmentsPerStudent}
             </div>
             <p className="text-sm text-gray-500 mt-1">
@@ -137,7 +138,7 @@ export default function VurderingspraksisPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-purple-600">
+            <div className="text-3xl font-bold text-brand-600">
               {data.schoolAverages.averageGrade || "-"}
             </div>
             <p className="text-sm text-gray-500 mt-1">
@@ -219,7 +220,8 @@ export default function VurderingspraksisPage() {
       {/* Detailed breakdown per teacher */}
       <div className="grid gap-6 lg:grid-cols-2">
         {data.teachers.map((teacher) => (
-          <Card key={teacher.id}>
+          <Link key={teacher.id} href={`/rektor/vurderingspraksis/${teacher.id}`}>
+          <Card className="cursor-pointer hover:shadow-md transition-shadow">
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <span>{teacher.name}</span>
@@ -245,7 +247,7 @@ export default function VurderingspraksisPage() {
                       return (
                         <div key={grade} className="flex-1 text-center">
                           <div
-                            className="bg-purple-100 rounded-t"
+                            className="bg-brand-100 rounded-t"
                             style={{ height: `${Math.max(percentage * 0.6, 4)}px` }}
                           />
                           <div className="text-xs mt-1">{grade}</div>
@@ -299,6 +301,7 @@ export default function VurderingspraksisPage() {
               </div>
             </CardContent>
           </Card>
+          </Link>
         ))}
       </div>
     </div>

@@ -83,7 +83,7 @@ export default function MineBarnPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <GraduationCap className="h-6 w-6 text-rose-600" />
+          <GraduationCap className="h-6 w-6 text-brand-600" />
           Mine barn
         </h1>
         <p className="text-gray-600">Oversikt over dine barns vurderinger</p>
@@ -105,7 +105,7 @@ export default function MineBarnPage() {
                 <div className="flex items-start justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      <GraduationCap className="h-5 w-5 text-rose-600" />
+                      <GraduationCap className="h-5 w-5 text-brand-600" />
                       {child.name}
                     </CardTitle>
                     <CardDescription>
@@ -129,8 +129,8 @@ export default function MineBarnPage() {
                   </div>
 
                   <Link href={`/foresatt/barn/${child.id}`}>
-                    <Button className="w-full">
-                      Se vurderinger og kompetanseprofil
+                    <Button className="w-full cursor-pointer">
+                      Se elev
                       <ArrowRight className="h-4 w-4 ml-2" />
                     </Button>
                   </Link>

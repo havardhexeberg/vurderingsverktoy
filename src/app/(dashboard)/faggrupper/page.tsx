@@ -48,10 +48,10 @@ const subjectConfig: Record<string, { icon: React.ElementType; color: string; bg
   "Samfunnsfag": { icon: Building2, color: "text-amber-600", bgColor: "bg-amber-50" },
   "KRLE": { icon: Globe, color: "text-cyan-600", bgColor: "bg-cyan-50" },
   "Spansk": { icon: Languages, color: "text-orange-600", bgColor: "bg-orange-50" },
-  "Kunst og handverk": { icon: Palette, color: "text-pink-600", bgColor: "bg-pink-50" },
+  "Kunst og håndverk": { icon: Palette, color: "text-pink-600", bgColor: "bg-pink-50" },
   "Musikk": { icon: Music, color: "text-indigo-600", bgColor: "bg-indigo-50" },
   "Mat og helse": { icon: Utensils, color: "text-lime-600", bgColor: "bg-lime-50" },
-  "Kroppsoving": { icon: Dumbbell, color: "text-brand-600", bgColor: "bg-brand-50" },
+  "Kroppsøving": { icon: Dumbbell, color: "text-brand-600", bgColor: "bg-brand-50" },
 }
 
 const getSubjectConfig = (subject: string) => {

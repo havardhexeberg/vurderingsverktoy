@@ -130,7 +130,7 @@ export default function AlleVurderingerPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-rose-600" />
+          <BookOpen className="h-6 w-6 text-brand-600" />
           Alle vurderinger
         </h1>
         <p className="text-gray-600">Samlet oversikt over alle publiserte vurderinger</p>
@@ -212,10 +212,10 @@ export default function AlleVurderingerPage() {
                     </TableCell>
                     <TableCell>{getFormLabel(assessment.form)}</TableCell>
                     <TableCell>
-                      {assessment.grade ? (
+                      {assessment.grade !== null ? (
                         <Badge>{assessment.grade}</Badge>
                       ) : (
-                        "-"
+                        <Badge variant="outline">IV</Badge>
                       )}
                     </TableCell>
                   </TableRow>
@@ -225,39 +225,6 @@ export default function AlleVurderingerPage() {
           )}
         </CardContent>
       </Card>
-
-      {/* Feedback cards */}
-      {filteredAssessments.some((a) => a.feedback) && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Tilbakemeldinger</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {filteredAssessments
-                .filter((a) => a.feedback)
-                .map((assessment) => (
-                  <div
-                    key={assessment.id}
-                    className="p-4 bg-gray-50 rounded-lg"
-                  >
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="font-medium">{assessment.childName}</span>
-                      <Badge variant="outline">{assessment.subject}</Badge>
-                      <span className="text-sm text-gray-500">
-                        {format(new Date(assessment.date), "d. MMM yyyy", { locale: nb })}
-                      </span>
-                      {assessment.grade && (
-                        <Badge>{assessment.grade}</Badge>
-                      )}
-                    </div>
-                    <p className="text-sm">{assessment.feedback}</p>
-                  </div>
-                ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   )
 }

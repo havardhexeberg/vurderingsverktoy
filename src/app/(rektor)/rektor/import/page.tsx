@@ -50,11 +50,11 @@ export default function RektorImportPage() {
       }
 
       if (!birthNumber || birthNumber.length !== 11 || !/^\d+$/.test(birthNumber)) {
-        errors.push("Fodselsnummer ma vaere 11 siffer")
+        errors.push("Fødselsnummer må være 11 siffer")
       }
 
       if (isNaN(grade) || grade < 8 || grade > 10) {
-        errors.push("Trinn ma vaere 8, 9 eller 10")
+        errors.push("Trinn må være 8, 9 eller 10")
       }
 
       parsed.push({
@@ -71,7 +71,7 @@ export default function RektorImportPage() {
 
   const handleFile = useCallback((file: File) => {
     if (!file.name.endsWith(".csv")) {
-      toast.error("Kun CSV-filer er stottet")
+      toast.error("Kun CSV-filer er støttet")
       return
     }
 
@@ -109,7 +109,7 @@ export default function RektorImportPage() {
   const handleImport = async () => {
     const validStudents = students.filter((s) => s.valid)
     if (validStudents.length === 0) {
-      toast.error("Ingen gyldige elever a importere")
+      toast.error("Ingen gyldige elever å importere")
       return
     }
 
@@ -151,7 +151,7 @@ export default function RektorImportPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Importer elever</h1>
         <p className="text-gray-600 mt-1">
-          Last opp en CSV-fil med elevdata for a importere til systemet
+          Last opp en CSV-fil med elevdata for å importere til systemet
         </p>
       </div>
 
@@ -159,7 +159,7 @@ export default function RektorImportPage() {
         <CardHeader>
           <CardTitle>Last opp fil</CardTitle>
           <CardDescription>
-            CSV-format: Navn, Fodselsnummer, Trinn
+            CSV-format: Navn, Fødselsnummer, Trinn
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -173,7 +173,7 @@ export default function RektorImportPage() {
               onDrop={handleDrop}
               className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
                 isDragOver
-                  ? "border-purple-500 bg-purple-50"
+                  ? "border-brand-500 bg-brand-50"
                   : "border-gray-300 hover:border-gray-400"
               }`}
             >
@@ -182,7 +182,7 @@ export default function RektorImportPage() {
                 Dra og slipp en CSV-fil her, eller
               </p>
               <label className="mt-2 inline-block">
-                <span className="text-purple-600 hover:text-purple-700 cursor-pointer font-medium">
+                <span className="text-brand-600 hover:text-brand-700 cursor-pointer font-medium">
                   velg fil
                 </span>
                 <input
@@ -197,7 +197,7 @@ export default function RektorImportPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <FileText className="h-8 w-8 text-purple-600" />
+                  <FileText className="h-8 w-8 text-brand-600" />
                   <div>
                     <p className="font-medium">{file.name}</p>
                     <p className="text-sm text-gray-500">
@@ -230,9 +230,9 @@ export default function RektorImportPage() {
       {students.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Forhandsvisning</CardTitle>
+            <CardTitle>Forhåndsvisning</CardTitle>
             <CardDescription>
-              Gjennomga dataene for du importerer
+              Gjennomga dataene før du importerer
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -242,7 +242,7 @@ export default function RektorImportPage() {
                   <TableRow>
                     <TableHead>Status</TableHead>
                     <TableHead>Navn</TableHead>
-                    <TableHead>Fodselsnummer</TableHead>
+                    <TableHead>Fødselsnummer</TableHead>
                     <TableHead>Trinn</TableHead>
                     <TableHead>Feil</TableHead>
                   </TableRow>
@@ -278,7 +278,7 @@ export default function RektorImportPage() {
               <Button
                 onClick={handleImport}
                 disabled={isLoading || validCount === 0}
-                className="bg-purple-600 hover:bg-purple-700"
+                className="bg-brand-600 hover:bg-brand-700"
               >
                 {isLoading ? "Importerer..." : `Importer ${validCount} elever`}
               </Button>
@@ -291,12 +291,12 @@ export default function RektorImportPage() {
         <CardHeader>
           <CardTitle>CSV-format</CardTitle>
           <CardDescription>
-            Filen ma folge dette formatet
+            Filen må følge dette formatet
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="bg-gray-50 p-4 rounded-lg font-mono text-sm">
-            <p className="text-gray-600">Navn,Fodselsnummer,Trinn</p>
+            <p className="text-gray-600">Navn,Fødselsnummer,Trinn</p>
             <p>Emma Hansen,12345678901,10</p>
             <p>Oliver Andersen,12345678902,10</p>
             <p>Nora Johansen,12345678903,9</p>

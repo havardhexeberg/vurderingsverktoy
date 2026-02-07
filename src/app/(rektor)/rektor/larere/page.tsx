@@ -3,6 +3,7 @@
 export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import {
@@ -34,6 +35,7 @@ interface TeacherData {
 }
 
 export default function LarerePage() {
+  const router = useRouter()
   const [teachers, setTeachers] = useState<TeacherData[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
@@ -67,7 +69,7 @@ export default function LarerePage() {
       </div>
 
       {/* Summary */}
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm text-gray-600">Antall lærere</CardTitle>
@@ -83,16 +85,6 @@ export default function LarerePage() {
           <CardContent>
             <div className="text-2xl font-bold">
               {teachers.reduce((sum, t) => sum + t.classGroups.length, 0)}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-gray-600">Totalt vurderinger</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {teachers.reduce((sum, t) => sum + t.totalAssessments, 0)}
             </div>
           </CardContent>
         </Card>
@@ -113,7 +105,6 @@ export default function LarerePage() {
                   <TableHead>Lærer</TableHead>
                   <TableHead>Faggrupper</TableHead>
                   <TableHead>Elever</TableHead>
-                  <TableHead>Vurderinger</TableHead>
                   <TableHead>Status</TableHead>
                 </TableRow>
               </TableHeader>
@@ -127,7 +118,7 @@ export default function LarerePage() {
                       : 0
 
                   return (
-                    <TableRow key={teacher.id}>
+                    <TableRow key={teacher.id} className="cursor-pointer" onClick={() => router.push(`/rektor/larere/${teacher.id}`)}>
                       <TableCell>
                         <div>
                           <div className="font-medium">{teacher.name}</div>
@@ -149,7 +140,6 @@ export default function LarerePage() {
                         </div>
                       </TableCell>
                       <TableCell>{teacher.totalStudents}</TableCell>
-                      <TableCell>{teacher.totalAssessments}</TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
                           {teacher.criticalStudents > 0 ? (
@@ -157,7 +147,7 @@ export default function LarerePage() {
                               {teacher.criticalStudents} kritisk
                             </Badge>
                           ) : teacher.warningStudents > 0 ? (
-                            <Badge variant="secondary">
+                            <Badge className="bg-amber-100 text-amber-800 hover:bg-amber-200">
                               {teacher.warningStudents} nesten
                             </Badge>
                           ) : (
