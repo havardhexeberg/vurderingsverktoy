@@ -19,7 +19,6 @@ interface StudentSelection { id: string; name: string; selected: boolean; grade?
 const ASSESSMENT_FORMS = [
   { value: "WRITTEN", label: "Skriftlig", icon: "📝" },
   { value: "ORAL", label: "Muntlig", icon: "🎤" },
-  { value: "ORAL_PRACTICAL", label: "Muntlig-praktisk", icon: "🎯" },
   { value: "PRACTICAL", label: "Praktisk", icon: "🔧" },
 ]
 
@@ -133,20 +132,23 @@ export default function RegistrerVurderingPage() {
       </div>
 
       {/* Progress */}
-      <div className="flex items-center gap-2">
-        {[1, 2, 3].map((s) => (
-          <div key={s} className="flex items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${s === step ? "bg-brand-600 text-white" : s < step ? "bg-brand-100 text-brand-700" : "bg-gray-100 text-gray-400"}`}>
-              {s < step ? <Check className="w-5 h-5" /> : s}
+      <div className="relative flex items-start justify-between">
+        <div className="absolute top-5 left-0 right-0 flex px-[20px]">
+          <div className={`flex-1 h-1 rounded ${step > 1 ? "bg-brand-600" : "bg-gray-200"}`} />
+          <div className={`flex-1 h-1 rounded ${step > 2 ? "bg-brand-600" : "bg-gray-200"}`} />
+        </div>
+        {[
+          { num: 1, label: "Velg faggruppe" },
+          { num: 2, label: "Vurderingsdetaljer" },
+          { num: 3, label: "Karakterer" },
+        ].map((s) => (
+          <div key={s.num} className="flex flex-col items-center z-10">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-colors ${s.num === step ? "bg-brand-600 text-white" : s.num < step ? "bg-brand-100 text-brand-700" : "bg-gray-100 text-gray-400"}`}>
+              {s.num < step ? <Check className="w-5 h-5" /> : s.num}
             </div>
-            {s < 3 && <div className={`flex-1 h-1 mx-2 rounded ${s < step ? "bg-brand-600" : "bg-gray-200"}`} />}
+            <span className={`text-sm mt-2 ${step >= s.num ? "text-brand-700 font-medium" : "text-gray-400"}`}>{s.label}</span>
           </div>
         ))}
-      </div>
-      <div className="flex justify-between text-sm">
-        <span className={step >= 1 ? "text-brand-700 font-medium" : "text-gray-400"}>Velg faggruppe</span>
-        <span className={step >= 2 ? "text-brand-700 font-medium" : "text-gray-400"}>Vurderingsdetaljer</span>
-        <span className={step >= 3 ? "text-brand-700 font-medium" : "text-gray-400"}>Karakterer</span>
       </div>
 
       {/* Step 1 */}
@@ -242,16 +244,26 @@ export default function RegistrerVurderingPage() {
           <CardContent>
             <div className="space-y-3">
               {students.map((student) => (
-                <div key={student.id} className="flex items-center gap-4 p-3 rounded-lg border border-gray-200">
-                  <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold text-sm">
-                    {student.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                <div key={student.id} className="p-3 rounded-lg border border-gray-200 space-y-2">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center font-semibold text-sm">
+                      {student.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
+                    </div>
+                    <div className="flex-1"><div className="font-medium text-gray-900">{student.name}</div></div>
+                    <div className="flex items-center gap-1">
+                      {GRADES.map((g) => (
+                        <button key={g.value} onClick={() => setStudentGrades((prev) => ({ ...prev, [student.id]: prev[student.id] === g.value ? null : g.value }))}
+                          className={`w-9 h-9 rounded font-bold transition-all ${studentGrades[student.id] === g.value ? `${g.color} text-white scale-110` : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{g.label}</button>
+                      ))}
+                    </div>
                   </div>
-                  <div className="flex-1"><div className="font-medium text-gray-900">{student.name}</div></div>
-                  <div className="flex items-center gap-1">
-                    {GRADES.map((g) => (
-                      <button key={g.value} onClick={() => setStudentGrades((prev) => ({ ...prev, [student.id]: prev[student.id] === g.value ? null : g.value }))}
-                        className={`w-9 h-9 rounded font-bold transition-all ${studentGrades[student.id] === g.value ? `${g.color} text-white scale-110` : "bg-gray-100 text-gray-400 hover:bg-gray-200"}`}>{g.label}</button>
-                    ))}
+                  <div className="pl-14">
+                    <Input
+                      placeholder="Tilbakemelding (valgfritt)"
+                      value={studentFeedback[student.id] || ""}
+                      onChange={(e) => setStudentFeedback((prev) => ({ ...prev, [student.id]: e.target.value }))}
+                      className="text-sm h-9"
+                    />
                   </div>
                 </div>
               ))}
