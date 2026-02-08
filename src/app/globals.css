@@ -28,6 +28,9 @@
   --color-elev: #0891B2;
   --color-elev-light: #ECFEFF;
   --color-elev-border: #A5F3FC;
+  --color-foresatt: #16A34A;
+  --color-foresatt-light: #F0FDF4;
+  --color-foresatt-border: #86EFAC;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-display);

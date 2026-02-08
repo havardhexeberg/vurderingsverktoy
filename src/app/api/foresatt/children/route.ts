@@ -15,18 +15,14 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Ingen tilgang" }, { status: 403 })
     }
 
-    // In a real system, this would be based on parent-child relationship
-    // For demo, we'll return all students in grade 10
     const students = await prisma.student.findMany({
       where: { grade: 10 },
-      take: 2, // Limit to 2 children for demo
+      take: 2,
       include: {
         classGroups: {
           include: {
             classGroup: {
-              include: {
-                teacher: true,
-              }
+              include: { teacher: true }
             }
           }
         },
@@ -35,24 +31,37 @@ export async function GET(request: NextRequest) {
           include: {
             classGroup: true,
             competenceGoals: {
-              include: {
-                competenceGoal: true,
-              }
+              include: { competenceGoal: true }
             }
           },
           orderBy: { date: "desc" },
         },
-        competenceProfiles: {
-          include: {
-            competenceGoal: true,
-          }
-        },
       },
     })
 
-    const result = students.map((student) => {
+    const result = await Promise.all(students.map(async (student) => {
       const status = calculateStudentStatus(student.assessments)
       const subjects = [...new Set(student.classGroups.map(cg => cg.classGroup.subject))]
+
+      const competenceGoals = await prisma.competenceGoal.findMany({
+        where: { subject: { in: subjects }, grade: student.grade },
+      })
+
+      const fagDekning: Record<string, { antallMal: number; dekkedeMal: number; antallVurderinger: number; laerer: string }> = {}
+      subjects.forEach(subject => {
+        const subjectGoals = competenceGoals.filter(g => g.subject === subject)
+        const subjectAssessments = student.assessments.filter(a => a.classGroup.subject === subject)
+        const assessedGoalIds = new Set(
+          subjectAssessments.flatMap(a => a.competenceGoals.map(cg => cg.competenceGoalId))
+        )
+        const teacher = student.classGroups.find(cg => cg.classGroup.subject === subject)?.classGroup.teacher
+        fagDekning[subject] = {
+          antallMal: subjectGoals.length,
+          dekkedeMal: subjectGoals.filter(g => assessedGoalIds.has(g.id)).length,
+          antallVurderinger: subjectAssessments.length,
+          laerer: teacher?.name || "",
+        }
+      })
 
       return {
         id: student.id,
@@ -61,6 +70,9 @@ export async function GET(request: NextRequest) {
         subjects,
         status: status.status,
         assessmentCount: student.assessments.length,
+        totalMal: Object.values(fagDekning).reduce((s, f) => s + f.antallMal, 0),
+        totalDekket: Object.values(fagDekning).reduce((s, f) => s + f.dekkedeMal, 0),
+        fagDekning,
         recentAssessments: student.assessments.slice(0, 5).map(a => ({
           id: a.id,
           date: a.date,
@@ -71,7 +83,7 @@ export async function GET(request: NextRequest) {
           feedback: a.feedback,
         })),
       }
-    })
+    }))
 
     return NextResponse.json(result)
   } catch (error) {

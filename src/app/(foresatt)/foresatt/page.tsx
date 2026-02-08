@@ -4,20 +4,8 @@ export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import {
-  BookOpen,
-  GraduationCap,
-  Calendar,
-  ArrowRight,
-  CheckCircle,
-  Clock,
-  AlertTriangle,
-} from "lucide-react"
-import { format } from "date-fns"
-import { nb } from "date-fns/locale"
+import { Loader2 } from "lucide-react"
+import { GradeChip } from "@/components/dashboard/scannable"
 
 interface ChildData {
   id: string
@@ -26,6 +14,9 @@ interface ChildData {
   subjects: string[]
   status: "OK" | "WARNING" | "CRITICAL"
   assessmentCount: number
+  totalMal: number
+  totalDekket: number
+  fagDekning: Record<string, { antallMal: number; dekkedeMal: number; antallVurderinger: number; laerer: string }>
   recentAssessments: Array<{
     id: string
     date: string
@@ -37,169 +28,131 @@ interface ChildData {
   }>
 }
 
-export default function ForesattDashboard() {
+const TYPE_LABELS: Record<string, string> = {
+  ONGOING: "Underveis",
+  MIDTERM: "Halvår",
+  FINAL: "Standpunkt",
+}
+
+function ProgressDots({ filled, total }: { filled: number; total: number }) {
+  const maxDots = Math.min(total, 14)
+  return (
+    <div className="flex gap-[3px] items-center">
+      {Array.from({ length: maxDots }, (_, i) => (
+        <div
+          key={i}
+          className={`w-[7px] h-[7px] rounded-full border ${
+            i < filled
+              ? "bg-foresatt border-foresatt-border"
+              : "bg-scan-border border-scan-border"
+          }`}
+        />
+      ))}
+      {total > 14 && <span className="text-[10px] text-scan-text3 ml-0.5">+{total - 14}</span>}
+    </div>
+  )
+}
+
+function formatDaysAgo(dateStr: string) {
+  const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 86400000)
+  if (diff === 0) return "I dag"
+  if (diff === 1) return "I går"
+  if (diff < 7) return `${diff} dager siden`
+  if (diff < 30) return `${Math.floor(diff / 7)} uker siden`
+  return `${Math.floor(diff / 30)} mnd siden`
+}
+
+export default function ForesattHjem() {
   const [children, setChildren] = useState<ChildData[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    fetchChildren()
+    fetch("/api/foresatt/children")
+      .then((r) => (r.ok ? r.json() : []))
+      .then(setChildren)
+      .catch(console.error)
+      .finally(() => setIsLoading(false))
   }, [])
 
-  const fetchChildren = async () => {
-    try {
-      const response = await fetch("/api/foresatt/children")
-      if (response.ok) {
-        const data = await response.json()
-        setChildren(data)
-      }
-    } catch (error) {
-      console.error("Error:", error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "OK":
-        return (
-          <Badge variant="default" className="gap-1">
-            <CheckCircle className="h-3 w-3" />
-            God oversikt
-          </Badge>
-        )
-      case "WARNING":
-        return (
-          <Badge variant="secondary" className="gap-1">
-            <Clock className="h-3 w-3" />
-            Pågående
-          </Badge>
-        )
-      case "CRITICAL":
-        return (
-          <Badge variant="destructive" className="gap-1">
-            <AlertTriangle className="h-3 w-3" />
-            Følg opp
-          </Badge>
-        )
-      default:
-        return null
-    }
-  }
-
-  const getFormLabel = (form: string) => {
-    const labels: Record<string, string> = {
-      WRITTEN: "Skriftlig",
-      ORAL: "Muntlig",
-      ORAL_PRACTICAL: "Muntlig-praktisk",
-      PRACTICAL: "Praktisk",
-    }
-    return labels[form] || form
-  }
-
   if (isLoading) {
-    return <div className="flex justify-center p-8">Laster...</div>
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 animate-spin text-foresatt" />
+      </div>
+    )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BookOpen className="h-6 w-6 text-brand-600" />
-          Velkommen til foresattportalen
-        </h1>
-        <p className="text-gray-600">Se vurderinger og kompetanseutvikling for dine barn</p>
+        <h1 className="text-[22px] font-bold text-scan-text tracking-tight">Hei, {children[0]?.name ? "foresatt" : ""}!</h1>
+        <p className="text-sm text-scan-text2 mt-0.5">{children.length} barn</p>
       </div>
 
-      {children.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <GraduationCap className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold">Ingen barn registrert</h3>
-            <p className="text-gray-500">Kontakt skolen for å få tilgang til dine barns vurderinger.</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <>
-          {/* Children overview */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {children.map((child) => (
-              <Card key={child.id} className="hover:shadow-md transition-shadow">
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        <GraduationCap className="h-5 w-5 text-brand-600" />
-                        {child.name}
-                      </CardTitle>
-                      <CardDescription>
-                        {child.grade}. trinn | {child.subjects.join(", ")}
-                      </CardDescription>
-                    </div>
-                    {getStatusBadge(child.status)}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {child.recentAssessments.length > 0 && (
-                      <div>
-                        <h4 className="text-sm font-medium mb-2">Siste vurderinger</h4>
-                        <div className="space-y-2">
-                          {child.recentAssessments.slice(0, 3).map((assessment) => (
-                            <div
-                              key={assessment.id}
-                              className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-                            >
-                              <div className="flex items-center gap-2">
-                                <BookOpen className="h-4 w-4 text-gray-400" />
-                                <div>
-                                  <div className="text-sm font-medium">{assessment.subject}</div>
-                                  <div className="text-xs text-gray-500">
-                                    {getFormLabel(assessment.form)} | {format(new Date(assessment.date), "d. MMM", { locale: nb })}
-                                  </div>
-                                </div>
-                              </div>
-                              {assessment.grade !== null ? (
-                                <Badge variant="outline">{assessment.grade}</Badge>
-                              ) : (
-                                <Badge variant="outline">IV</Badge>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
+      {/* Child cards */}
+      {children.map((child) => {
+        const fagMedVurd = Object.entries(child.fagDekning).filter(([, f]) => f.antallVurderinger > 0)
+        const fagUten = Object.entries(child.fagDekning).filter(([, f]) => f.antallVurderinger === 0)
 
-                    <Link href={`/foresatt/barn/${child.id}`}>
-                      <Button variant="outline" className="w-full cursor-pointer">
-                        Se elev
-                        <ArrowRight className="h-4 w-4 ml-2" />
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Info box */}
-          <Card className="bg-brand-50 border-brand-200">
-            <CardContent className="py-3 px-4">
-              <div className="flex items-start gap-3">
-                <div className="p-1.5 bg-brand-100 rounded-lg">
-                  <Calendar className="h-4 w-4 text-brand-600" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-brand-900 text-sm">Om vurderinger</h3>
-                  <p className="text-xs text-brand-800 mt-0.5">
-                    Her ser du kun publiserte vurderinger fra lærerne. Kladder og interne notater er ikke synlige.
-                    Ta kontakt med kontaktlærer hvis du har spørsmål om barnets faglige utvikling.
-                  </p>
+        return (
+          <div key={child.id} className="bg-scan-surface rounded-xl border border-scan-border overflow-hidden">
+            {/* Child header */}
+            <Link
+              href={`/foresatt/barn/${child.id}`}
+              className="flex items-center gap-3.5 px-5 py-4 hover:bg-scan-bg transition-colors"
+            >
+              <div className="w-[42px] h-[42px] rounded-full flex items-center justify-center text-base font-bold bg-foresatt-light text-foresatt border-2 border-foresatt-border flex-shrink-0">
+                {child.name.charAt(0)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-base font-semibold text-scan-text">{child.name}</div>
+                <div className="text-xs text-scan-text3">{child.grade}. trinn</div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-scan-text2">Vurdert i {fagMedVurd.length} av {child.subjects.length} fag</div>
+                <div className="flex items-center gap-2 mt-1 justify-end">
+                  <span className="text-[11px] text-scan-text3">{child.totalDekket}/{child.totalMal} mål</span>
+                  <ProgressDots filled={child.totalDekket} total={Math.min(child.totalMal, 14)} />
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </>
+              <span className="text-scan-text3 text-sm ml-1">›</span>
+            </Link>
+
+            {/* Recent assessments */}
+            {child.recentAssessments.length > 0 && (
+              <div className="border-t border-scan-border">
+                {child.recentAssessments.slice(0, 3).map((a, i) => (
+                  <div
+                    key={a.id}
+                    className={`flex items-center gap-2.5 px-5 py-2.5 pl-[76px] ${
+                      i < Math.min(child.recentAssessments.length, 3) - 1 ? "border-b border-gray-100" : ""
+                    }`}
+                  >
+                    <GradeChip grade={a.grade} />
+                    <span className="flex-1 text-[13px] text-scan-text">
+                      {a.subject} <span className="text-scan-text3">·</span>{" "}
+                      <span className="text-scan-text2">{TYPE_LABELS[a.type] || a.type}</span>
+                    </span>
+                    <span className="text-[11px] text-scan-text3">{formatDaysAgo(a.date)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Missing subjects */}
+            {fagUten.length > 0 && (
+              <div className="px-5 py-2.5 pl-[76px] border-t border-scan-border text-xs text-scan-text3">
+                Ikke vurdert i: {fagUten.map(([name]) => name).join(", ")}
+              </div>
+            )}
+          </div>
+        )
+      })}
+
+      {children.length === 0 && (
+        <div className="bg-scan-surface rounded-xl border border-scan-border p-8 text-center">
+          <p className="text-sm text-scan-text3">Ingen barn registrert. Kontakt skolen for tilgang.</p>
+        </div>
       )}
     </div>
   )

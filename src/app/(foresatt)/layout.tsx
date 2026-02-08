@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { ForesattHeader } from "@/components/foresatt/foresatt-header"
+import { ForesattSidebar } from "@/components/foresatt/foresatt-sidebar"
 
 export default async function ForesattLayout({
   children,
@@ -19,10 +19,10 @@ export default async function ForesattLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <ForesattHeader />
-      <main>
-        <div className="p-6">{children}</div>
+    <div className="min-h-screen bg-scan-bg">
+      <ForesattSidebar />
+      <main className="md:ml-52 pt-14 md:pt-0">
+        <div className="p-5 max-w-[740px]">{children}</div>
       </main>
     </div>
   )

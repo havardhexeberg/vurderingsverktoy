@@ -3,151 +3,163 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { signOut, useSession } from "next-auth/react"
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
-import {
-  LayoutDashboard,
-  GraduationCap,
-  BookOpen,
-  LogOut,
-  Menu,
-  X,
-  Heart,
-} from "lucide-react"
-import { useState } from "react"
+import { Home, LogOut, Menu, X } from "lucide-react"
+import { useState, useEffect } from "react"
 
-const navigation = [
-  { name: "Oversikt", href: "/foresatt", icon: LayoutDashboard },
-  { name: "Mine barn", href: "/foresatt/barn", icon: GraduationCap },
-  { name: "Vurderinger", href: "/foresatt/vurderinger", icon: BookOpen },
-]
+interface ChildInfo {
+  id: string
+  name: string
+  grade: number
+  fagDekning: Record<string, { antallVurderinger: number }>
+}
 
 export function ForesattSidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [children, setChildren] = useState<ChildInfo[]>([])
 
-  const getInitials = (name: string) => {
-    return name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2)
-  }
+  useEffect(() => {
+    fetch("/api/foresatt/children")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: ChildInfo[]) => setChildren(data))
+      .catch(() => {})
+  }, [])
+
+  const getInitials = (name: string) =>
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+
+  const activeChildId = pathname.match(/\/foresatt\/barn\/([^/?]+)/)?.[1] || null
 
   const SidebarContent = () => (
-    <>
-      <div className="flex h-16 items-center justify-between px-4">
-        <Link href="/foresatt" className="flex items-center gap-2">
-          <Heart className="h-6 w-6 text-rose-600" />
-          <span className="text-lg font-semibold">Foresattportal</span>
+    <div className="flex h-full flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between h-14 px-4 border-b border-scan-border">
+        <Link href="/foresatt" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
+          <div className="text-[15px] font-semibold text-scan-text tracking-tight">Vurdering</div>
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-foresatt-light text-foresatt border border-foresatt-border">
+            Foresatt
+          </span>
         </Link>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        >
-          <X className="h-5 w-5" />
-        </Button>
+        <button className="md:hidden p-1 text-scan-text3 hover:text-scan-text" onClick={() => setMobileMenuOpen(false)}>
+          <X className="h-4 w-4" />
+        </button>
       </div>
 
-      <Separator />
+      {/* Navigation */}
+      <nav className="flex-1 overflow-y-auto px-2 pt-3">
+        <Link
+          href="/foresatt"
+          onClick={() => setMobileMenuOpen(false)}
+          className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors mb-1 ${
+            pathname === "/foresatt"
+              ? "bg-foresatt-light text-foresatt"
+              : "text-scan-text2 hover:text-scan-text hover:bg-scan-bg"
+          }`}
+        >
+          <Home className="h-4 w-4" />
+          Oversikt
+        </Link>
 
-      <nav className="flex-1 space-y-1 px-2 py-4">
-        {navigation.map((item) => {
-          const isActive = pathname === item.href ||
-            (item.href !== "/foresatt" && pathname.startsWith(item.href))
+        {/* Children with expandable fag lists */}
+        {children.map((child) => {
+          const isChildActive = activeChildId === child.id
+          const fagWithVurd = Object.entries(child.fagDekning || {}).filter(
+            ([, f]) => f.antallVurderinger > 0
+          )
+
           return (
-            <Link
-              key={item.name}
-              href={item.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-rose-50 text-rose-700"
-                  : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+            <div key={child.id} className="mt-2">
+              <Link
+                href={`/foresatt/barn/${child.id}`}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                  isChildActive
+                    ? "text-scan-text"
+                    : "text-scan-text2 hover:text-scan-text hover:bg-scan-bg"
+                }`}
+              >
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 ${
+                  isChildActive ? "bg-foresatt text-white" : "bg-gray-100 text-scan-text3"
+                }`}>
+                  {child.name.charAt(0)}
+                </div>
+                <span className="flex-1 truncate">{child.name}</span>
+                <span className="text-[11px] text-scan-text3">{child.grade}.kl</span>
+              </Link>
+
+              {isChildActive && fagWithVurd.length > 0 && (
+                <div className="pl-3 mt-0.5 space-y-0.5">
+                  {fagWithVurd.map(([fagNavn, fag]) => (
+                    <Link
+                      key={fagNavn}
+                      href={`/foresatt/barn/${child.id}?fag=${encodeURIComponent(fagNavn)}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-between px-3 py-1.5 rounded-lg text-[12px] text-scan-text3 hover:text-scan-text hover:bg-scan-bg transition-colors"
+                    >
+                      <span className="truncate">{fagNavn}</span>
+                      <span className="font-mono text-[11px]">{fag.antallVurderinger}</span>
+                    </Link>
+                  ))}
+                </div>
               )}
-            >
-              <item.icon className="h-5 w-5" />
-              {item.name}
-            </Link>
+            </div>
           )
         })}
       </nav>
 
-      <Separator />
-
-      <div className="p-4">
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar className="h-9 w-9">
-            <AvatarFallback className="bg-rose-100 text-rose-700 text-sm">
-              {session?.user?.name ? getInitials(session.user.name) : "?"}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              {session?.user?.name}
-            </p>
-            <p className="text-xs text-rose-600 truncate">Foresatt</p>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full"
-          onClick={() => signOut({ callbackUrl: "/login" })}
-        >
-          <LogOut className="h-4 w-4 mr-2" />
-          Logg ut
-        </Button>
+      {/* Footer */}
+      <div className="px-3 py-2 border-t border-scan-border text-[11px] text-scan-text3">
+        Nordvik ungdomsskole
       </div>
-    </>
+
+      {/* User */}
+      <div className="p-3 border-t border-scan-border">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-full bg-foresatt-light flex items-center justify-center flex-shrink-0">
+            <span className="text-xs font-semibold text-foresatt">
+              {session?.user?.name ? getInitials(session.user.name) : "?"}
+            </span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[13px] font-medium text-scan-text truncate">{session?.user?.name}</div>
+            <div className="text-[11px] text-scan-text3">Foresatt</div>
+          </div>
+          <button
+            onClick={() => signOut({ callbackUrl: "/login" })}
+            className="p-1.5 text-scan-text3 hover:text-scan-text transition-colors"
+            title="Logg ut"
+          >
+            <LogOut className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </div>
+    </div>
   )
 
   return (
     <>
-      {/* Mobile menu button */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex h-16 items-center gap-4 border-b bg-white px-4 md:hidden">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setMobileMenuOpen(true)}
-        >
-          <Menu className="h-5 w-5" />
-        </Button>
-        <span className="text-lg font-semibold">Foresattportal</span>
+      <div className="fixed top-0 left-0 right-0 z-40 flex h-14 items-center gap-3 border-b border-scan-border bg-scan-surface px-4 md:hidden">
+        <button onClick={() => setMobileMenuOpen(true)} className="p-1">
+          <Menu className="h-5 w-5 text-scan-text" />
+        </button>
+        <span className="text-[15px] font-semibold text-scan-text">Foresattportal</span>
       </div>
 
-      {/* Mobile menu overlay */}
       {mobileMenuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/50 md:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/30 md:hidden" onClick={() => setMobileMenuOpen(false)} />
       )}
 
-      {/* Mobile sidebar */}
       <aside
-        className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 transform bg-white transition-transform md:hidden",
+        className={`fixed inset-y-0 left-0 z-50 w-52 bg-scan-surface border-r border-scan-border transform transition-transform md:hidden ${
           mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        )}
+        }`}
       >
-        <div className="flex h-full flex-col">
-          <SidebarContent />
-        </div>
+        <SidebarContent />
       </aside>
 
-      {/* Desktop sidebar */}
-      <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col border-r bg-white">
-        <div className="flex h-full flex-col">
-          <SidebarContent />
-        </div>
+      <aside className="hidden md:fixed md:inset-y-0 md:flex md:w-52 md:flex-col bg-scan-surface border-r border-scan-border">
+        <SidebarContent />
       </aside>
     </>
   )
