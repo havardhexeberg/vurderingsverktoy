@@ -12,48 +12,119 @@ Vurderingsverktoy er et komplett vurderingssystem for norske ungdomsskoler (8.-1
 - **Database:** PostgreSQL (Neon serverless)
 - **ORM:** Prisma 5.10.0
 - **Autentisering:** NextAuth.js med Credentials provider
-- **UI:** shadcn/ui komponenter, Tailwind CSS
+- **UI:** shadcn/ui komponenter, Tailwind CSS, DM Sans + DM Mono fonter
+- **Designsystem:** "Skannbar Arbeidsflate" — monokromt grunnlag med farge kun for status
 - **Deployment:** Vercel
+
+### Portal-farger
+| Portal | Aksent | CSS-token |
+|--------|--------|-----------|
+| Laerer | #5C80BC (brand) | `brand-*` |
+| Rektor | #7C3AED (lilla) | `rektor-*` |
+| Foresatt | #16A34A (gronn) | `foresatt-*` |
+| Elev | #0891B2 (cyan) | `elev-*` |
+
+### CSS-tokens (globals.css)
+- `scan-bg/surface/border/text/text2/text3` — monokrome grunnfarger
+- `status-ok/warn/crit` — semantiske statusfarger (gronn/gul/rod)
 
 ## Prosjektstruktur
 
 ```
 src/
 ├── app/
-│   ├── (dashboard)/          # Laererportal (turkis tema)
+│   ├── (auth)/               # Innlogging
+│   │   └── login/
+│   ├── (dashboard)/          # Laererportal (brand #5C80BC)
 │   │   ├── dashboard/
-│   │   ├── faggrupper/[id]/
+│   │   ├── faggrupper/
+│   │   │   └── [id]/
+│   │   │       ├── bulk/           # Hurtigvurdering
+│   │   │       └── elev/[studentId]/ # Elevdetalj
 │   │   ├── mine-elever/
+│   │   ├── kompetansemaal/
 │   │   ├── oppgaver/
 │   │   ├── rapporter/
-│   │   └── fritak/
-│   ├── (rektor)/             # Rektorportal (lilla tema)
+│   │   ├── fritak/
+│   │   ├── import/
+│   │   ├── vurderinger/
+│   │   │   └── ny/                 # Ny vurdering
+│   │   └── min-side/
+│   ├── (rektor)/             # Rektorportal (lilla #7C3AED)
 │   │   └── rektor/
 │   │       ├── elever/
+│   │       │   └── [id]/
 │   │       ├── larere/
+│   │       │   └── [id]/
 │   │       ├── faggrupper/
-│   │       ├── faggrupper/ny/
+│   │       │   ├── [id]/
+│   │       │   └── ny/
 │   │       ├── import/
+│   │       ├── rapporter/
 │   │       ├── vurderingspraksis/
+│   │       │   └── [teacherId]/
 │   │       └── varsler/
-│   ├── (foresatt)/           # Foresattportal (gronn tema)
+│   ├── (foresatt)/           # Foresattportal (gronn #16A34A)
 │   │   └── foresatt/
-│   │       ├── barn/[id]/
+│   │       ├── barn/
+│   │       │   └── [id]/           # Barnoversikt + fagdetalj (?fag=)
 │   │       └── vurderinger/
-│   ├── (elev)/               # Elevportal (cyan tema)
+│   ├── (elev)/               # Elevportal (cyan #0891B2)
 │   │   └── elev/
 │   │       ├── kompetanse/
 │   │       └── vurderinger/
-│   └── api/                  # API-ruter
+│   └── api/
+│       ├── assessments/
+│       │   └── bulk/
+│       ├── class-groups/
+│       │   └── [id]/
+│       │       └── students-status/
+│       ├── competence-goals/
+│       ├── dashboard/stats/
+│       ├── elev/profile/
+│       ├── exemptions/
+│       │   └── [id]/
+│       ├── foresatt/children/
+│       │   └── [id]/
+│       ├── rektor/
+│       │   ├── alerts/
+│       │   ├── class-groups/
+│       │   ├── reports/
+│       │   ├── stats/
+│       │   ├── students/
+│       │   ├── teachers/
+│       │   └── vurderingspraksis/
+│       ├── reports/
+│       ├── students/
+│       │   ├── [id]/
+│       │   │   └── competence-profile/
+│       │   └── import/
+│       ├── tasks/
+│       │   └── [id]/
+│       └── teacher/
+│           ├── competence-matrix/
+│           └── students/
 ├── components/
 │   ├── ui/                   # shadcn/ui komponenter
 │   ├── dashboard/            # Laerer-komponenter
+│   │   └── scannable/        # StatusDot, GradeChip, DekningBar, InlineGradeInput
 │   ├── rektor/               # Rektor-komponenter
-│   └── elev/                 # Elev-komponenter
-└── lib/
-    ├── auth.ts               # NextAuth konfigurasjon
-    ├── prisma.ts             # Prisma klient
-    └── student-status.ts     # Beregning av elevstatus
+│   ├── foresatt/             # Foresatt-komponenter (sidebar)
+│   ├── elev/                 # Elev-komponenter (sidebar)
+│   ├── shared/               # Delte komponenter (SubjectTabs, AssessmentTable, etc.)
+│   ├── competence/           # Kompetanseprofil-komponenter
+│   ├── students/             # Elevrelaterte komponenter
+│   ├── providers/            # SessionProvider
+│   └── QuickAssessmentModal.tsx
+├── lib/
+│   ├── auth.ts               # NextAuth konfigurasjon
+│   ├── prisma.ts             # Prisma klient
+│   ├── student-status.ts     # Beregning av elevstatus
+│   ├── competence-profile.ts # Kompetanseprofil-logikk
+│   └── utils.ts              # Hjelpefunksjoner
+├── types/
+│   └── next-auth.d.ts        # NextAuth type-utvidelser
+└── middleware.ts              # NextAuth middleware
 ```
 
 ## Roller og Tilgang
@@ -140,14 +211,25 @@ Matematikk, Norsk, Engelsk, Naturfag, Samfunnsfag, KRLE, Spansk, Kunst og handve
 
 ### Laerer
 - `GET /api/class-groups` - Hent laererens faggrupper
-- `GET /api/class-groups/[id]` - Faggruppe med elever
+- `GET /api/class-groups/[id]` - Faggruppe med elever og vurderinger
+- `GET /api/class-groups/[id]/students-status` - Elevstatus for en faggruppe
 - `POST /api/assessments` - Opprett vurdering
+- `POST /api/assessments/bulk` - Opprett flere vurderinger samtidig
+- `GET /api/competence-goals` - Kompetansemal (filtrert pa fag/trinn)
+- `GET /api/dashboard/stats` - Dashboard-statistikk
 - `GET /api/teacher/students` - Alle laererens elever
+- `GET /api/teacher/competence-matrix` - Kompetansematrise per faggruppe
+- `GET /api/tasks` - Oppgaver og varsler
+- `GET /api/reports` - Rapporter
 
 ### Rektor
 - `GET /api/rektor/stats` - Skolestatistikk
 - `GET /api/rektor/students` - Alle elever
 - `GET /api/rektor/teachers` - Alle laerere
+- `GET /api/rektor/class-groups` - Alle faggrupper
+- `GET /api/rektor/alerts` - Systemvarsler
+- `GET /api/rektor/reports` - Rapporter
+- `GET /api/rektor/vurderingspraksis` - Vurderingspraksis-oversikt
 - `POST /api/class-groups` - Opprett faggruppe (med teacherId)
 - `POST /api/students/import` - Importer elever fra CSV
 
@@ -158,8 +240,8 @@ Matematikk, Norsk, Engelsk, Naturfag, Samfunnsfag, KRLE, Spansk, Kunst og handve
   - Snittkarakter per kompetansemal
 
 ### Foresatt
-- `GET /api/foresatt/children` - Alle barn
-- `GET /api/foresatt/children/[id]` - Barnets profil
+- `GET /api/foresatt/children` - Alle barn med fagDekning og dekningstall
+- `GET /api/foresatt/children/[id]` - Barnets profil med kompetansemalBySubject
 
 ## Kommandoer
 

@@ -61,6 +61,7 @@ export async function GET() {
       students,
       assessments,
       warnings: studentsWithFewAssessments,
+      kontaktlaererKlasse: user.kontaktlaererKlasse || null,
     })
   } catch (error) {
     console.error("Dashboard stats error:", error)

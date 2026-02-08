@@ -52,14 +52,14 @@ async function main() {
 
   // Create teachers
   const teacherData = [
-    { email: 'larer@test.no', name: 'Ole Hansen', subjects: ['Matematikk'] },
-    { email: 'norsk.larer@test.no', name: 'Anna Larsen', subjects: ['Norsk'] },
-    { email: 'engelsk.larer@test.no', name: 'Erik Berg', subjects: ['Engelsk'] },
-    { email: 'spansk.larer@test.no', name: 'Maria Garcia', subjects: ['Spansk'] },
-    { email: 'naturfag.larer@test.no', name: 'Per Olsen', subjects: ['Naturfag'] },
-    { email: 'samfunn.larer@test.no', name: 'Line Johansen', subjects: ['Samfunnsfag', 'KRLE'] },
-    { email: 'kunst.larer@test.no', name: 'Kristin Vik', subjects: ['Kunst og håndverk', 'Musikk'] },
-    { email: 'gym.larer@test.no', name: 'Thomas Moe', subjects: ['Kroppsøving', 'Mat og helse'] },
+    { email: 'larer@test.no', name: 'Ole Hansen', subjects: ['Matematikk'], kontaktlaererKlasse: '10A' },
+    { email: 'norsk.larer@test.no', name: 'Anna Larsen', subjects: ['Norsk'], kontaktlaererKlasse: '10B' },
+    { email: 'engelsk.larer@test.no', name: 'Erik Berg', subjects: ['Engelsk'], kontaktlaererKlasse: '10C' },
+    { email: 'spansk.larer@test.no', name: 'Maria Garcia', subjects: ['Spansk'], kontaktlaererKlasse: '9B' },
+    { email: 'naturfag.larer@test.no', name: 'Per Olsen', subjects: ['Naturfag'], kontaktlaererKlasse: '9D' },
+    { email: 'samfunn.larer@test.no', name: 'Line Johansen', subjects: ['Samfunnsfag', 'KRLE'], kontaktlaererKlasse: '8A' },
+    { email: 'kunst.larer@test.no', name: 'Kristin Vik', subjects: ['Kunst og håndverk', 'Musikk'], kontaktlaererKlasse: '8B' },
+    { email: 'gym.larer@test.no', name: 'Thomas Moe', subjects: ['Kroppsøving', 'Mat og helse'], kontaktlaererKlasse: '8C' },
   ]
 
   const subjectToTeacher: Record<string, string> = {}
@@ -67,11 +67,12 @@ async function main() {
   for (const t of teacherData) {
     const teacher = await prisma.user.upsert({
       where: { email: t.email },
-      update: {},
+      update: { kontaktlaererKlasse: t.kontaktlaererKlasse },
       create: {
         email: t.email,
         name: t.name,
         role: 'TEACHER',
+        kontaktlaererKlasse: t.kontaktlaererKlasse,
       },
     })
     for (const subject of t.subjects) {

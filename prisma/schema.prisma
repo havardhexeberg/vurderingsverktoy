@@ -16,12 +16,13 @@ datasource db {
 // ============================================
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  role      String   // TEACHER, PRINCIPAL, PARENT, CONTACT_TEACHER
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  email               String   @unique
+  name                String
+  role                String   // TEACHER, PRINCIPAL, PARENT, CONTACT_TEACHER
+  kontaktlaererKlasse String?  // e.g. "10A", "9B"
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
   // Relations
   assessmentsCreated Assessment[]

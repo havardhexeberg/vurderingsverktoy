@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react"
 import { useSession } from "next-auth/react"
-import { AlertTriangle, ChevronRight, Loader2 } from "lucide-react"
+import { AlertTriangle, ChevronRight, Loader2, Users } from "lucide-react"
 import Link from "next/link"
 import { StatusDot, DekningBar } from "@/components/dashboard/scannable"
 
@@ -11,6 +11,7 @@ interface Stats {
   students: number
   assessments: number
   warnings: number
+  kontaktlaererKlasse: string | null
 }
 
 interface ClassGroup {
@@ -29,6 +30,7 @@ export default function DashboardPage() {
     students: 0,
     assessments: 0,
     warnings: 0,
+    kontaktlaererKlasse: null,
   })
   const [classGroups, setClassGroups] = useState<ClassGroup[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -89,6 +91,26 @@ export default function DashboardPage() {
           {stats.classGroups} faggrupper · {stats.students} elever · {stats.assessments} vurderinger
         </p>
       </div>
+
+      {/* Kontaktlaererklasse */}
+      {stats.kontaktlaererKlasse && (
+        <Link href="/min-klasse" className="block">
+          <div className="flex items-center gap-3 p-4 rounded-xl bg-brand-50 border border-brand-200 hover:border-brand-300 transition-colors">
+            <div className="w-9 h-9 rounded-full bg-brand-100 flex items-center justify-center flex-shrink-0">
+              <Users className="w-4 h-4 text-brand-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-medium text-brand-800">
+                Kontaktlaerer for {stats.kontaktlaererKlasse}
+              </div>
+              <div className="text-sm text-brand-600">
+                Se elevene i klassen din
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-brand-400" />
+          </div>
+        </Link>
+      )}
 
       {/* Critical alerts */}
       {stats.warnings > 0 && (
