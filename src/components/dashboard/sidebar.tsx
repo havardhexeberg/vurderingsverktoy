@@ -15,13 +15,15 @@ import {
   ClipboardList,
   PlusCircle,
   Users,
+  FileText,
 } from "lucide-react"
 import { useState } from "react"
 
 const navigation = [
   { name: "Oversikt", href: "/dashboard", icon: LayoutDashboard },
-  { name: "Min klasse", href: "/min-klasse", icon: Users },
   { name: "Ny vurdering", href: "/vurderinger/ny", icon: PlusCircle },
+  { name: "Mine vurderinger", href: "/mine-vurderinger", icon: FileText },
+  { name: "Min klasse", href: "/min-klasse", icon: Users },
   { name: "Faggrupper", href: "/faggrupper", icon: BookOpen },
   { name: "Oppgaver", href: "/oppgaver", icon: ClipboardList },
 ]
